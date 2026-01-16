@@ -18,6 +18,32 @@ struct OnboardingView: View {
     // User data (persisted)
     @AppStorage("userName") private var userName: String = ""
     @AppStorage("userProfession") private var userProfession: String = ""
+    @State private var customProfession: String = ""
+    
+    // Profession options
+    private let professionOptions = [
+        "Developer",
+        "Designer",
+        "Product Manager",
+        "Writer",
+        "Content Creator",
+        "Marketing Manager",
+        "Data Analyst",
+        "Project Manager",
+        "Sales Representative",
+        "Consultant",
+        "Researcher",
+        "Teacher/Educator",
+        "Journalist",
+        "Copywriter",
+        "Video Editor",
+        "Podcaster",
+        "UX/UI Designer",
+        "Business Analyst",
+        "Accountant",
+        "Lawyer",
+        "Other"
+    ]
     
     var canContinue: Bool {
         permissionsManager.allPermissionsGranted && speechRecognizer.isReady
@@ -94,20 +120,47 @@ struct OnboardingView: View {
                         )
                 }
                 
-                // Profession field
+                // Profession dropdown
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Your Profession")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.secondary)
                     
-                    TextField("e.g. Developer, Writer, Designer", text: $userProfession)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 15))
+                    Menu {
+                        ForEach(professionOptions, id: \.self) { option in
+                            Button(option) {
+                                userProfession = option
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(userProfession.isEmpty ? "Select your profession" : userProfession)
+                                .font(.system(size: 15))
+                                .foregroundColor(userProfession.isEmpty ? .secondary : .primary)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
                         .padding(12)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .stroke(Color.black.opacity(0.15), lineWidth: 1)
                         )
+                    }
+                    .buttonStyle(.plain)
+                    
+                    // Show custom text field if "Other" is selected
+                    if userProfession == "Other" {
+                        TextField("Enter your profession", text: $customProfession)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 15))
+                            .padding(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                            )
+                    }
                 }
             }
             .padding(.horizontal, 32)
