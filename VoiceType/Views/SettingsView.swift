@@ -48,16 +48,27 @@ struct SettingsView: View {
             .frame(minWidth: 200, maxWidth: 220)
             .background(Color(NSColor.controlBackgroundColor))
             
-            // Content Area
-            VStack(spacing: 0) {
-                switch selectedTab {
-                case 0: GeneralSettingsView(appState: appState)
-                case 1: TranscriptionSettingsView()
-                case 2: AIRewriteSettingsView(showAPIKeyError: showAPIKeyError)
-                case 3: HistoryView(history: appState.transcriptionHistory)
-                case 4: AboutView()
-                default: GeneralSettingsView(appState: appState)
-                }
+            // Content Area - Using ZStack to keep views alive for instant switching
+            ZStack {
+                GeneralSettingsView(appState: appState)
+                    .opacity(selectedTab == 0 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 0)
+                
+                TranscriptionSettingsView()
+                    .opacity(selectedTab == 1 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 1)
+                
+                AIRewriteSettingsView(showAPIKeyError: showAPIKeyError)
+                    .opacity(selectedTab == 2 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 2)
+                
+                HistoryView(history: appState.transcriptionHistory)
+                    .opacity(selectedTab == 3 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 3)
+                
+                AboutView()
+                    .opacity(selectedTab == 4 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 4)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(NSColor.windowBackgroundColor))
