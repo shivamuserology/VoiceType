@@ -145,11 +145,10 @@ class GeminiService {
             for candidate in chunk.candidates {
                 for part in candidate.content.parts {
                     // Only process text parts
-                        if case .text(let text) = part {
-                            // In the future, if specific thinking parts need filtering logic, add checks here.
-                            // Currently we assume standard text parts are the output.
-                            finalOutput += text
-                        }
+                    if case .text(let text) = part {
+                        // In the future, if specific thinking parts need filtering logic, add checks here.
+                        // Currently we assume standard text parts are the output.
+                        finalOutput += text
                     }
                 }
             }
