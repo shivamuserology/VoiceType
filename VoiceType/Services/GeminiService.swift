@@ -62,54 +62,17 @@ class GeminiService {
         }
     }
     
-    // MARK: - Keychain Operations
+    // MARK: - API Key Storage (UserDefaults)
     
-    /// Save API key to Keychain
+    /// Save API key to UserDefaults (to avoid Keychain persistence prompts in dev)
     static func saveAPIKey(_ key: String) -> Bool {
-        let data = key.data(using: .utf8)!
-        
-        // Delete existing key first
-        let deleteQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount
-        ]
-        SecItemDelete(deleteQuery as CFDictionary)
-        
-        // Add new key
-        let addQuery: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecValueData as String: data,
-            // Allow access without prompt after first unlock
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
-        ]
-        
-        let status = SecItemAdd(addQuery as CFDictionary, nil)
-        return status == errSecSuccess
+        UserDefaults.standard.set(key, forKey: keychainAccount)
+        return true
     }
     
-    /// Retrieve API key from Keychain
+    /// Retrieve API key from UserDefaults
     static func getAPIKey() -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-        
-        var dataTypeRef: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
-        
-        guard status == errSecSuccess,
-            let data = dataTypeRef as? Data,
-            let key = String(data: data, encoding: .utf8) else {
-            return nil
-        }
-        
-        return key
+        return UserDefaults.standard.string(forKey: keychainAccount)
     }
     
     /// Check if API key exists
@@ -117,16 +80,10 @@ class GeminiService {
         return getAPIKey() != nil
     }
     
-    /// Delete API key from Keychain
+    /// Delete API key
     static func deleteAPIKey() -> Bool {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keychainAccount
-        ]
-        
-        let status = SecItemDelete(query as CFDictionary)
-        return status == errSecSuccess || status == errSecItemNotFound
+        UserDefaults.standard.removeObject(forKey: keychainAccount)
+        return true
     }
     
     // MARK: - Rewrite Text
