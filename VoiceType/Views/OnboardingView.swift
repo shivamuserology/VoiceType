@@ -116,7 +116,7 @@ struct OnboardingView: View {
                         .padding(12)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                         )
                 }
                 
@@ -245,7 +245,7 @@ struct OnboardingView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.black.opacity(0.03))
+                                .fill(Color.primary.opacity(0.05))
                         )
                     }
                 }
@@ -312,7 +312,7 @@ struct CompactPermissionRow: View {
             // Icon
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .frame(width: 18)
             
             // Title
@@ -325,11 +325,11 @@ struct CompactPermissionRow: View {
             if isGranted {
                 Image(systemName: "checkmark")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.black)
+                    .foregroundColor(.green)
                     .padding(5)
                     .background(
                         Circle()
-                            .stroke(Color.black, lineWidth: 1.5)
+                            .stroke(Color.green, lineWidth: 1.5)
                     )
             } else {
                 Button(action: action) {
@@ -350,7 +350,7 @@ struct CompactPermissionRow: View {
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.15), lineWidth: 1)
         )
     }
 }
@@ -416,11 +416,11 @@ struct ModelStatusView: View {
                         Spacer()
                         ProgressView()
                             .scaleEffect(0.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                            .progressViewStyle(CircularProgressViewStyle(tint: .primary))
                     }
                     
                     ProgressView() // Indeterminate
-                        .progressViewStyle(LinearProgressViewStyle(tint: .black))
+                        .progressViewStyle(LinearProgressViewStyle(tint: .primary))
                         .opacity(0.5)
                 }
             }
@@ -428,7 +428,7 @@ struct ModelStatusView: View {
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.black.opacity(0.03))
+                .fill(Color.primary.opacity(0.05))
         )
     }
 }
