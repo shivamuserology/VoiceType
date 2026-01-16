@@ -81,7 +81,9 @@ class GeminiService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: keychainAccount,
-            kSecValueData as String: data
+            kSecValueData as String: data,
+            // Allow access without prompt after first unlock
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
         
         let status = SecItemAdd(addQuery as CFDictionary, nil)
