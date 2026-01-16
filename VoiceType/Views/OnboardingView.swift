@@ -143,10 +143,12 @@ struct OnboardingView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(12)
+                        .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                         )
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     
@@ -158,7 +160,7 @@ struct OnboardingView: View {
                             .padding(12)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                                    .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                             )
                     }
                 }
