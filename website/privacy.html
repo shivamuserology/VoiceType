@@ -8,9 +8,18 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Figtree:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <style>
+        :root {
+            --bg-cream: #FFFFEB;
+            --text-primary: #1A1A1A;
+            --text-secondary: rgba(26, 26, 26, 0.7);
+            --border-light: rgba(0, 0, 0, 0.06);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,9 +27,9 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #fff;
-            color: #000;
+            font-family: 'Figtree', sans-serif;
+            background: var(--bg-cream);
+            color: var(--text-primary);
             line-height: 1.7;
             -webkit-font-smoothing: antialiased;
         }
@@ -46,8 +55,9 @@
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
+            font-family: 'EB Garamond', serif;
+            font-size: 3rem;
+            font-weight: 500;
             letter-spacing: -0.02em;
             margin-bottom: 0.5rem;
         }
@@ -59,8 +69,9 @@
         }
 
         h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-family: 'EB Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
             margin-top: 2.5rem;
             margin-bottom: 1rem;
         }
@@ -85,7 +96,8 @@
         }
 
         .highlight {
-            background: #f5f5f5;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--border-light);
             padding: 1.5rem;
             border-radius: 12px;
             margin: 2rem 0;
@@ -110,8 +122,8 @@
         <p class="updated">Last updated: January 2025</p>
 
         <div class="highlight">
-            <p><strong>TL;DR:</strong> VoiceType processes all audio locally on your Mac. We don't collect, store, or
-                transmit any of your voice data or transcriptions. Ever.</p>
+            <p><strong>TL;DR:</strong> VoiceType processes dictation locally. If you use AI Rewrite, text is sent to
+                Google Gemini. We don't collect, store, or transmit your data to our own servers.</p>
         </div>
 
         <h2>What we collect</h2>
@@ -124,28 +136,36 @@
             <li>All audio processing happens entirely on your Mac</li>
             <li>Your voice recordings are never sent to any server</li>
             <li>Transcriptions are never stored or logged</li>
-            <li>The app works completely offline after initial model download</li>
         </ul>
 
+        <h2>AI Rewrite (Optional)</h2>
+        <p>If you use the <strong>Smart Rewrite</strong> feature (Sparkles icon), the selected text is sent to Google's
+            Gemini API for processing. This data is processed by Google to provide the rewritten text and is subject to
+            their <a href="https://ai.google.dev/gemini-api/terms"
+                style="color: #000; text-decoration: underline;">Terms of Service</a>. VoiceType does not store or log
+            this data.</p>
+
         <h2>Permissions we require</h2>
-        <p>VoiceType needs two permissions to function:</p>
+        <p>VoiceType needs permissions to function:</p>
         <ul>
-            <li><strong>Microphone Access:</strong> To hear your voice for transcription. Audio is processed in
-                real-time and immediately discarded.</li>
-            <li><strong>Accessibility Access:</strong> To detect the Fn key globally and insert text at your cursor
-                position.</li>
+            <li><strong>Microphone Access:</strong> To hear your voice for transcription.</li>
+            <li><strong>Accessibility Access:</strong> To insert text at your cursor position.</li>
         </ul>
 
         <h2>Network usage</h2>
-        <p>The only network request VoiceType makes is to download the Whisper AI model on first launch (~150MB). After
-            that, the app works entirely offline.</p>
+        <p>VoiceType requires network only for:</p>
+        <ul>
+            <li>Downloading the Whisper AI model on first launch (~150MB).</li>
+            <li>Sending text to Google Gemini (only when you click Smart Rewrite).</li>
+        </ul>
 
         <h2>Data storage</h2>
         <p>VoiceType stores only your preferences (like model selection) locally using macOS's standard UserDefaults. No
             audio, transcriptions, or personal data is ever stored.</p>
 
         <h2>Third-party services</h2>
-        <p>VoiceType does not use any third-party analytics, advertising, or tracking services.</p>
+        <p>VoiceType uses Google Gemini API for the optional Rewrite feature. No other third-party analytics or trackers
+            are used.</p>
 
         <h2>Open source</h2>
         <p>VoiceType is open source. You can review the code yourself to verify our privacy practices:</p>

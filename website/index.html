@@ -4,36 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceType – Voice to Text for Mac</title>
+    <title>VoiceType – Voice to Text, Perfected.</title>
     <meta name="description"
-        content="Transform your voice into text anywhere on your Mac. Private, fast, and effortless dictation powered by on-device AI.">
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="VoiceType – Voice to Text for Mac">
-    <meta property="og:description"
-        content="Transform your voice into text anywhere on your Mac. Private, fast, and effortless.">
-    <meta property="og:type" content="website">
+        content="Experience the fastest, most private way to type on your Mac. Powered by on-device AI.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Figtree:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="VoiceType – Voice to Text, Perfected.">
+    <meta property="og:description"
+        content="Experience the fastest, most private way to type on your Mac. No cloud. No subscriptions.">
+    <meta property="og:type" content="website">
 
     <style>
         :root {
-            --primary: #007AFF;
-            --black: #171717;
-            --white: #ffffff;
-            --gray-50: #fafafa;
-            --gray-100: #f5f5f5;
-            --gray-200: #e5e5e5;
-            --gray-300: #d4d4d4;
-            --gray-400: #a3a3a3;
-            --gray-500: #737373;
-            --gray-600: #525252;
-            --gray-700: #404040;
-            --gray-800: #262626;
-            --gray-900: #171717;
+            /* Palette: Warm Cream & Soft Black */
+            --bg-cream: #FFFFEB;
+            --text-primary: #1A1A1A;
+            --text-secondary: rgba(26, 26, 26, 0.6);
+            --accent-blue: #E6F2FF;
+            --accent-blue-hover: #CCE5FF;
+            --primary-blue: #007AFF;
+
+            --border-light: rgba(0, 0, 0, 0.06);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+
+            /* Spacing */
+            --container-width: 1100px;
+            --nav-height: 80px;
         }
 
         * {
@@ -47,618 +50,451 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--gray-50);
-            color: var(--black);
-            line-height: 1.6;
+            background-color: var(--bg-cream);
+            color: var(--text-primary);
+            font-family: 'Figtree', sans-serif;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* Navigation */
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'EB Garamond', serif;
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        /* --- Animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Navigation --- */
         nav {
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
+            width: 100%;
+            height: var(--nav-height);
             z-index: 100;
-            padding: 1.5rem 2rem;
-            background: rgba(250, 250, 250, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--gray-100);
-        }
-
-        .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(255, 255, 235, 0.9);
+            backdrop-filter: blur(10px);
         }
 
         .logo {
-            font-size: 1.25rem;
+            font-family: 'EB Garamond', serif;
+            font-size: 1.5rem;
             font-weight: 600;
-            letter-spacing: -0.02em;
-            color: var(--black);
+            color: var(--text-primary);
             text-decoration: none;
         }
 
-        .nav-links {
+        .nav-right {
             display: flex;
-            gap: 2rem;
+            gap: 24px;
             align-items: center;
         }
 
-        .nav-links a {
-            color: var(--gray-600);
+        .nav-link {
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 0.95rem;
             transition: color 0.2s;
         }
 
-        .nav-links a:hover {
-            color: var(--primary);
+        .nav-link:hover {
+            color: var(--text-primary);
         }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+        .btn-download {
+            background: var(--primary-blue);
+            color: #fff;
+            padding: 10px 24px;
             border-radius: 100px;
-            font-size: 0.875rem;
-            font-weight: 500;
             text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
+        .btn-download:hover {
             transform: translateY(-1px);
+            background: #000;
         }
 
-        .btn-secondary {
-            background: var(--white);
-            color: var(--black);
-            border: 1px solid var(--gray-200);
-        }
-
-        .btn-secondary:hover {
-            background: var(--gray-50);
-            border-color: var(--gray-300);
-        }
-
-        /* Hero */
-        .hero {
+        /* --- Hero --- */
+        header.hero {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            align-items: center;
             justify-content: center;
-            align-items: center;
             text-align: center;
-            padding: 8rem 2rem 4rem;
+            padding: 120px 20px 60px;
             position: relative;
-            overflow: hidden;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--gray-100);
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--gray-600);
-            margin-bottom: 2rem;
-        }
-
-        .hero-badge::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            background: var(--black);
-            border-radius: 50%;
         }
 
         .hero h1 {
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            font-weight: 600;
-            letter-spacing: -0.03em;
+            font-size: clamp(3rem, 7vw, 5rem);
+            max-width: 800px;
+            margin-bottom: 16px;
             line-height: 1.1;
-            max-width: 900px;
-            margin-bottom: 1.5rem;
         }
 
         .hero p {
-            font-size: 1.25rem;
-            color: var(--gray-500);
+            font-size: 1.15rem;
+            color: var(--text-secondary);
             max-width: 600px;
-            margin-bottom: 3rem;
-            font-weight: 300;
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
+            margin: 0 auto 32px auto;
+            text-align: center;
         }
 
         .hero-visual {
-            margin-top: 4rem;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 32px;
             position: relative;
         }
 
-        .floating-pill {
+        .hero-visual img {
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* --- Section: Marquee --- */
+        .marquee {
+            width: 100%;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            overflow: hidden;
+            display: flex;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .marquee-content {
+            display: flex;
+            gap: 60px;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .marquee-item {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            font-family: 'EB Garamond', serif;
+            font-style: italic;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* --- Section: Speed Comparison --- */
+        .comparison-section {
+            padding: 120px 20px;
+            max-width: var(--container-width);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .comp-text h2 {
+            font-size: 3rem;
+            margin-bottom: 24px;
+        }
+
+        .comp-text p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .comp-visual img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem 1.5rem;
-            background: var(--black);
+            gap: 8px;
+            background: var(--accent-blue);
+            padding: 8px 16px;
             border-radius: 100px;
-            color: var(--white);
-            font-size: 0.875rem;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .floating-pill .waveform {
-            display: flex;
-            gap: 3px;
-            height: 20px;
-            align-items: center;
-        }
-
-        .floating-pill .bar {
-            width: 3px;
-            background: var(--white);
-            border-radius: 2px;
-            animation: wave 0.8s ease-in-out infinite;
-        }
-
-        .floating-pill .bar:nth-child(1) {
-            height: 30%;
-            animation-delay: 0s;
-        }
-
-        .floating-pill .bar:nth-child(2) {
-            height: 70%;
-            animation-delay: 0.1s;
-        }
-
-        .floating-pill .bar:nth-child(3) {
-            height: 50%;
-            animation-delay: 0.2s;
-        }
-
-        .floating-pill .bar:nth-child(4) {
-            height: 90%;
-            animation-delay: 0.3s;
-        }
-
-        .floating-pill .bar:nth-child(5) {
-            height: 60%;
-            animation-delay: 0.4s;
-        }
-
-        .floating-pill .bar:nth-child(6) {
-            height: 80%;
-            animation-delay: 0.5s;
-        }
-
-        .floating-pill .bar:nth-child(7) {
-            height: 40%;
-            animation-delay: 0.6s;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        @keyframes wave {
-
-            0%,
-            100% {
-                transform: scaleY(1);
-            }
-
-            50% {
-                transform: scaleY(0.5);
-            }
-        }
-
-        /* Features */
-        .features {
-            padding: 8rem 2rem;
-            background: var(--gray-50);
-        }
-
-        .section-header {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto 4rem;
-        }
-
-        .section-header h2 {
-            font-size: 2rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            letter-spacing: -0.02em;
-            margin-bottom: 1rem;
+            color: #004085;
+            margin-bottom: 24px;
         }
 
-        .section-header p {
-            color: var(--gray-500);
+        /* --- Section: Features / Grid --- */
+        .features-section {
+            padding: 120px 20px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.5));
+        }
+
+        .features-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 80px;
+        }
+
+        .features-header h2 {
+            font-size: 3rem;
+            margin-bottom: 16px;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: var(--container-width);
             margin: 0 auto;
         }
 
         .feature-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 16px;
-            border: 1px solid var(--gray-100);
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--border-light);
+            padding: 40px;
+            border-radius: 20px;
+            transition: transform 0.3s;
         }
 
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--black);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.25rem;
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: #fff;
+            box-shadow: var(--card-shadow);
+        }
+
+        .f-icon {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            display: block;
         }
 
         .feature-card h3 {
-            font-size: 1.125rem;
+            font-family: 'Figtree', sans-serif;
+            /* Keep headers clean here */
             font-weight: 600;
-            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
         }
 
         .feature-card p {
-            color: var(--gray-500);
-            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
         }
 
-        /* How it works */
-        .how-it-works {
-            padding: 8rem 2rem;
-        }
-
-        .steps {
-            display: flex;
-            justify-content: center;
-            gap: 4rem;
-            flex-wrap: wrap;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .step {
-            text-align: center;
-            max-width: 280px;
-        }
-
-        .step-number {
-            width: 64px;
-            height: 64px;
-            background: var(--black);
-            color: var(--white);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0 auto 1.5rem;
-        }
-
-        .step h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .step p {
-            color: var(--gray-500);
-            font-size: 0.9375rem;
-        }
-
-        .step .key {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: var(--gray-100);
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-        }
-
-        /* Requirements */
-        .requirements {
-            padding: 4rem 2rem;
-            background: var(--gray-50);
-        }
-
-        .requirements-content {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            flex-wrap: wrap;
-        }
-
-        .requirement {
-            text-align: center;
-        }
-
-        .requirement-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--gray-400);
-            margin-bottom: 0.5rem;
-        }
-
-        .requirement-value {
-            font-weight: 600;
-        }
-
-        /* CTA */
-        .cta {
-            padding: 8rem 2rem;
-            text-align: center;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            margin-bottom: 1rem;
-        }
-
-        .cta p {
-            color: var(--gray-500);
-            margin-bottom: 2rem;
-        }
-
-        .cta-note {
-            font-size: 0.875rem;
-            color: var(--gray-400);
-            margin-top: 1rem;
-        }
-
-        /* Footer */
+        /* --- Footer --- */
         footer {
-            padding: 2rem;
-            border-top: 1px solid var(--gray-100);
+            padding: 80px 20px;
             text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        footer p {
-            color: var(--gray-400);
-            font-size: 0.875rem;
-        }
-
-        footer a {
-            color: var(--gray-600);
+        .footer-logo {
+            font-family: 'EB Garamond', serif;
+            font-size: 2rem;
+            margin-bottom: 24px;
+            display: block;
+            color: var(--text-primary);
             text-decoration: none;
         }
 
-        footer a:hover {
-            color: var(--black);
+        .footer-links a {
+            color: var(--text-secondary);
+            margin: 0 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            nav {
-                padding: 1rem;
+        @media (max-width: 900px) {
+            .comparison-section {
+                grid-template-columns: 1fr;
+                text-align: center;
             }
 
-            .nav-links {
-                display: none;
+            .features-grid {
+                grid-template-columns: 1fr;
             }
 
-            .hero {
-                padding: 6rem 1.5rem 3rem;
+            .hero h1 {
+                font-size: 2.5rem;
             }
 
-            .steps {
-                gap: 2rem;
+            .hero p {
+                font-size: 1rem;
             }
 
-            .requirements-content {
-                gap: 2rem;
+            .hero-visual {
+                max-width: 100%;
+                margin-top: 24px;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Navigation -->
+
     <nav>
-        <div class="nav-content">
-            <a href="#" class="logo">VoiceType</a>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#how-it-works">How it works</a>
-                <a href="https://github.com/shivam1610sethi/VoiceType" target="_blank">GitHub</a>
-                <a href="#download" class="btn btn-primary">Download</a>
-            </div>
+        <a href="#" class="logo">VoiceType</a>
+        <div class="nav-right">
+            <a href="#how-it-works" class="nav-link">How it works</a>
+            <a href="https://github.com/shivam1610sethi/VoiceType" class="nav-link" target="_blank">GitHub</a>
+            <a href="https://github.com/shivam1610sethi/VoiceType/releases/latest/download/VoiceType-1.1.0.dmg"
+                class="btn-download">Download</a>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <section class="hero">
-        <span class="hero-badge">Now with AI Rewrite ✨</span>
-        <h1>Voice to text,<br>perfected by AI</h1>
-        <p>Transform your voice into text with a single key. Use Smart Rewrite to fix grammar and clarity instantly.
-            Private, fast, and effortless.</p>
-
-        <div class="hero-cta">
-            <a href="#download" class="btn btn-primary">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Download for macOS
-            </a>
-            <a href="#how-it-works" class="btn btn-secondary">See how it works</a>
-        </div>
-
-        <div class="hero-visual">
-            <div class="floating-pill">
-                <div class="waveform">
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                </div>
-                <span>Listening...</span>
+    <header class="hero">
+        <div class="reveal">
+            <div class="badge-container"
+                style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
+                <span class="stat-badge" style="background: rgba(0,0,0,0.05); color: var(--text-primary);">Open
+                    Source</span>
+                <span class="stat-badge" style="background: rgba(0,0,0,0.05); color: var(--text-primary);">100%
+                    Free</span>
+                <span class="stat-badge">Now with AI Rewrite ✨</span>
             </div>
+            <h1>Type at the speed<br>of thought.</h1>
+            <p>Transform your voice into text instantly. Private, fast, and completely free on macOS.</p>
+
+            <a href="https://github.com/shivam1610sethi/VoiceType/releases/latest/download/VoiceType-1.1.0.dmg"
+                class="btn-download" style="padding: 16px 32px; font-size: 1.1rem;">Download for Mac</a>
+
+            <div class="hero-visual">
+                <!-- Use the generated 3D widget image here -->
+                <img src="../images/hero-widget.png" alt="VoiceType Widget">
+            </div>
+        </div>
+    </header>
+
+    <!-- Marquee -->
+    <div class="marquee">
+        <div class="marquee-content">
+            <span class="marquee-item">Works in Every App</span> •
+            <span class="marquee-item">Notes</span> •
+            <span class="marquee-item">Slack</span> •
+            <span class="marquee-item">VS Code</span> •
+            <span class="marquee-item">Mail</span> •
+            <span class="marquee-item">Notion</span> •
+            <span class="marquee-item">Works in Every App</span> •
+            <span class="marquee-item">Notes</span> •
+            <span class="marquee-item">Slack</span> •
+            <span class="marquee-item">VS Code</span> •
+        </div>
+    </div>
+
+    <!-- Speed Comparison -->
+    <section class="comparison-section reveal" id="speed">
+        <div class="comp-text">
+            <h2>Don't let your fingers<br>slow you down.</h2>
+            <p>Typing is the bottleneck of creativity. VoiceType removes the friction between your brain and your
+                screen, letting you capture ideas 5x faster.</p>
+
+            <div style="display: flex; gap: 40px; margin-top: 40px;">
+                <div>
+                    <h4 style="font-size: 2.5rem; margin-bottom: 0;">40</h4>
+                    <span
+                        style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">WPM
+                        Typing</span>
+                </div>
+                <div>
+                    <h4 style="font-size: 2.5rem; margin-bottom: 0; color: var(--primary-blue);">300+</h4>
+                    <span
+                        style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">WPM
+                        Speaking</span>
+                </div>
+            </div>
+        </div>
+        <div class="comp-visual">
+            <img src="../images/speed-chart.png" alt="Speed Comparison Chart">
         </div>
     </section>
 
     <!-- Features -->
-    <section class="features" id="features">
-        <div class="section-header">
-            <h2>Built for speed and privacy</h2>
-            <p>Everything happens on your Mac. No cloud, no subscriptions, no compromises.</p>
+    <section class="features-section" id="how-it-works">
+        <div class="features-header reveal">
+            <h2>Everything you need.<br>Nothing you don't.</h2>
         </div>
 
         <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">⌨️</div>
-                <h3>One Key Away</h3>
-                <p>Hold the Fn key to start dictating. Release to insert text at your cursor. It's that simple.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
+            <div class="feature-card reveal">
+                <span class="f-icon">🔒</span>
                 <h3>100% Private</h3>
-                <p>All speech recognition happens locally using Whisper AI. Your voice never leaves your Mac.</p>
+                <p>Powered by on-device Whisper models. Your voice never leaves your Mac.</p>
             </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Works Everywhere</h3>
-                <p>Dictate in any app where you can type. Email, notes, browser, code editors—anywhere.</p>
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: var(--primary); color: white;">✨</div>
-                    <h3>Smart Rewrite</h3>
-                    <p>Instantly polish your thought. Fix grammar, structure, and clarity with one click using on-device
-                        AI.</p>
-                </div>
+            <div class="feature-card reveal">
+                <span class="f-icon">⚡️</span>
+                <h3>Global Hotkey</h3>
+                <p>Just hold <strong>Fn</strong> to dictate anywhere. Release to paste text instantly.</p>
             </div>
-        </div>
-    </section>
-
-    <!-- How it works -->
-    <section class="how-it-works" id="how-it-works">
-        <div class="section-header">
-            <h2>Three steps. Zero friction.</h2>
-            <p>No setup, no configuration. Just hold, speak, and release.</p>
-        </div>
-
-        <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <h3>Hold</h3>
-                <p>Press <strong>Fn</strong> or click the widget</p>
+            <div class="feature-card reveal">
+                <span class="f-icon">💸</span>
+                <h3>Free Forever</h3>
+                <p>Open source and free. No subscriptions, no hidden limits.</p>
             </div>
-
-            <div class="step">
-                <div class="step-number">2</div>
-                <h3>Speak</h3>
-                <p>Say what you want naturally</p>
-            </div>
-
-            <div class="step">
-                <div class="step-number">3</div>
-                <h3>Perfect</h3>
-                <p>Release to type, or click ✨ to AI Rewrite</p>
+            <div class="feature-card reveal">
+                <span class="f-icon">✨</span>
+                <h3>Smart Rewrite</h3>
+                <p>Instantly polish your dictation. Fix grammar, formatting, and clarity with one click using Gemini
+                    Flash.</p>
             </div>
         </div>
     </section>
 
-    <!-- Requirements -->
-    <section class="requirements">
-        <div class="requirements-content">
-            <div class="requirement">
-                <div class="requirement-label">System</div>
-                <div class="requirement-value">macOS 14+</div>
-            </div>
-            <div class="requirement">
-                <div class="requirement-label">Processor</div>
-                <div class="requirement-value">Apple Silicon</div>
-            </div>
-            <div class="requirement">
-                <div class="requirement-label">Storage</div>
-                <div class="requirement-value">~500MB</div>
-            </div>
-            <div class="requirement">
-                <div class="requirement-label">Price</div>
-                <div class="requirement-value">Free</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta" id="download">
-        <h2>Ready to type with your voice?</h2>
-        <p>Download VoiceType and start dictating in seconds.</p>
-
-        <a href="https://github.com/shivam1610sethi/VoiceType/releases/latest/download/VoiceType-1.1.0.dmg"
-            class="btn btn-primary" style="font-size: 1rem; padding: 1rem 2rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Download VoiceType 1.1.0
-        </a>
-
-        <p class="cta-note">Free forever • No account required • Open source</p>
-    </section>
-
-    <!-- Footer -->
     <footer>
-        <p>
-            <a href="privacy.html">Privacy</a> ·
-            <a href="https://github.com/shivam1610sethi/VoiceType" target="_blank">GitHub</a> ·
-            Made with care
-        </p>
+        <a href="#" class="footer-logo">VoiceType</a>
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="https://github.com/shivam1610sethi/VoiceType" target="_blank">View Source</a>
+        </div>
+        <p style="margin-top: 24px; color: rgba(0,0,0,0.3); font-size: 0.8rem;">© 2026 VoiceType. Crafted with care.</p>
     </footer>
+
+    <script>
+        // Scroll Animation Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    </script>
 </body>
 
 </html>
