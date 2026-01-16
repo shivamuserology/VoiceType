@@ -4,17 +4,21 @@ import SwiftUI
 /// Main Settings view with Sidebar navigation (Wispr Flow style)
 struct SettingsView: View {
     @ObservedObject var appState: AppState
-    @Binding var selectedTab: Int
+    @State private var selectedTab: Int
     var showAPIKeyError: Bool = false
     
-    init(appState: AppState, selectedTab: Binding<Int> = .constant(0), showAPIKeyError: Bool = false) {
+    init(appState: AppState, initialTab: Int = 0, showAPIKeyError: Bool = false) {
         self.appState = appState
-        self._selectedTab = selectedTab
+        self._selectedTab = State(initialValue: initialTab)
         self.showAPIKeyError = showAPIKeyError
     }
     
     var body: some View {
-        HSplitView {
+        let stateChangeLogger = {
+             print("[SettingsView] selection changed to: \(selectedTab)")
+        }()
+        
+        return HSplitView {
             // Sidebar
             VStack(spacing: 0) {
                 // App Header
@@ -33,14 +37,29 @@ struct SettingsView: View {
                 // Navigation Items
                 ScrollView {
                     VStack(spacing: 4) {
-                        SidebarItem(title: "General", icon: "gear", isSelected: selectedTab == 0) { selectedTab = 0 }
-                        SidebarItem(title: "Transcription", icon: "text.bubble", isSelected: selectedTab == 1) { selectedTab = 1 }
-                        SidebarItem(title: "AI Rewrite", icon: "sparkles", isSelected: selectedTab == 2, showBadge: showAPIKeyError) { selectedTab = 2 }
-                        SidebarItem(title: "History", icon: "clock.arrow.circlepath", isSelected: selectedTab == 3) { selectedTab = 3 }
+                        SidebarItem(title: "General", icon: "gear", isSelected: selectedTab == 0) {
+                            print("[SettingsView] Clicked General")
+                            selectedTab = 0
+                        }
+                        SidebarItem(title: "Transcription", icon: "text.bubble", isSelected: selectedTab == 1) {
+                            print("[SettingsView] Clicked Transcription")
+                            selectedTab = 1
+                        }
+                        SidebarItem(title: "AI Rewrite", icon: "sparkles", isSelected: selectedTab == 2, showBadge: showAPIKeyError) {
+                            print("[SettingsView] Clicked AI Rewrite")
+                            selectedTab = 2
+                        }
+                        SidebarItem(title: "History", icon: "clock.arrow.circlepath", isSelected: selectedTab == 3) {
+                            print("[SettingsView] Clicked History")
+                            selectedTab = 3
+                        }
                         
                         Divider().padding(.vertical, 8)
                         
-                        SidebarItem(title: "About", icon: "info.circle", isSelected: selectedTab == 4) { selectedTab = 4 }
+                        SidebarItem(title: "About", icon: "info.circle", isSelected: selectedTab == 4) {
+                            print("[SettingsView] Clicked About")
+                            selectedTab = 4
+                        }
                     }
                     .padding(.horizontal, 10)
                 }

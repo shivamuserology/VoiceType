@@ -202,13 +202,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         if settingsWindow == nil {
-            let selectedTab = CurrentValueSubject<Int, Never>(tab)
             let view = SettingsView(
                 appState: appState, 
-                selectedTab: Binding(
-                    get: { selectedTab.value },
-                    set: { selectedTab.send($0) }
-                ),
+                initialTab: tab,
                 showAPIKeyError: showAPIKeyError
             )
             
