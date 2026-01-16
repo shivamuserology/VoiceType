@@ -21,7 +21,7 @@ class FloatingPanel: NSPanel {
         // Wrap content in AnyView and create hosting view
         let wrappedContent = AnyView(
             content
-                .frame(minWidth: 80, maxWidth: 400, minHeight: 10, maxHeight: 30)
+                .frame(minWidth: 80, maxWidth: 400, minHeight: 22, maxHeight: 30)
                 .fixedSize()
         )
         

@@ -47,10 +47,14 @@ struct IdlePillView: View {
                         Text("to dictate")
                             .foregroundColor(.white.opacity(0.8))
                     }
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 10, weight: .medium)) // Scale down from 12
+                } else {
+                    Image(systemName: "waveform")
+                        .font(.system(size: isHovered ? 12 : 8))
+                        .foregroundColor(.white.opacity(0.7))
                 }
             }
-            .frame(width: isHovered ? 130 : 45, height: isHovered ? 22 : 10)
+            .frame(width: isHovered ? 130 : 36, height: isHovered ? 22 : 12)
             .background(
                 Capsule()
                     .fill(Color.black.opacity(0.85))
