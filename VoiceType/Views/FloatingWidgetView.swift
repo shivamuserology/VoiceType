@@ -106,7 +106,7 @@ struct RecordingPillView: View {
             Button(action: onStop) {
                 ZStack {
                     Circle()
-                        .fill(Color.white.opacity(0.2))
+                        .fill(Color.red)
                         .frame(width: 16, height: 16) // Scale 28->16
                     
                     RoundedRectangle(cornerRadius: 2)
