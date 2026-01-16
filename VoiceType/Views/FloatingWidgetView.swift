@@ -81,43 +81,43 @@ struct RecordingPillView: View {
     let onStop: () -> Void
     
     var body: some View {
-        HStack(spacing: 8) { // Reduced spacing 12->8
+        HStack(spacing: 10) {
             // Cancel button
             Button(action: onCancel) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 8, weight: .bold)) // Scale down 12->8
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white)
             }
             .buttonStyle(.plain)
-            .frame(width: 16, height: 16) // Scale down 28->16
+            .frame(width: 20, height: 20)
             .background(Circle().fill(Color.white.opacity(0.2)))
             
             // Audio waveform visualization
-            HStack(spacing: 2) { // Spacing 3->2
+            HStack(spacing: 3) {
                 ForEach(0..<8, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 1)
+                    RoundedRectangle(cornerRadius: 1.5)
                         .fill(Color.white.opacity(0.9))
-                        .frame(width: 2, height: waveHeight(for: index)) // Width 3->2
+                        .frame(width: 3, height: waveHeight(for: index))
                 }
             }
-            .frame(width: 34, height: 14) // Scale container
+            .frame(width: 40, height: 18)
             
             // Stop/Finish button
             Button(action: onStop) {
                 ZStack {
                     Circle()
                         .fill(Color.red)
-                        .frame(width: 16, height: 16) // Scale 28->16
+                        .frame(width: 20, height: 20)
                     
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color.white)
-                        .frame(width: 6, height: 6) // Scale 12->6
+                        .frame(width: 8, height: 8)
                 }
             }
             .buttonStyle(.plain)
         }
-        .frame(height: 22) // Scale 44->22
-        .padding(.horizontal, 8) // Padding 14->8
+        .frame(height: 28)
+        .padding(.horizontal, 10)
         .background(
             Capsule()
                 .fill(Color.black.opacity(0.9))
@@ -129,8 +129,8 @@ struct RecordingPillView: View {
     }
     
     private func waveHeight(for index: Int) -> CGFloat {
-        let baseHeight: CGFloat = 3 // Scale 6->3
-        let maxAddition: CGFloat = 8 // Scale 14->8
+        let baseHeight: CGFloat = 4
+        let maxAddition: CGFloat = 10
         let normalizedLevel = CGFloat(min(audioLevel * 3, 1.0))
         
         // Create pseudo-random wave pattern
