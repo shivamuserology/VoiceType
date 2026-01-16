@@ -1,10 +1,23 @@
 import SwiftUI
 
-/// Onboarding view for first-time permission setup - Sleek Black & White Design
+/// Onboarding step enum
+enum OnboardingStep {
+    case personalization
+    case permissions
+}
+
+/// Onboarding view for first-time setup - Sleek Black & White Design
 struct OnboardingView: View {
     @ObservedObject var permissionsManager: PermissionsManager
     @ObservedObject var speechRecognizer: SpeechRecognizer
     var onComplete: () -> Void
+    
+    // Step management
+    @State private var currentStep: OnboardingStep = .personalization
+    
+    // User data (persisted)
+    @AppStorage("userName") private var userName: String = ""
+    @AppStorage("userProfession") private var userProfession: String = ""
     
     var canContinue: Bool {
         permissionsManager.allPermissionsGranted && speechRecognizer.isReady
@@ -12,9 +25,8 @@ struct OnboardingView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header - Minimal & Compact
+            // Header - Always visible
             VStack(spacing: 12) {
-                // Icon - Simple black circle with waveform
                 ZStack {
                     Circle()
                         .fill(Color.black)
@@ -30,14 +42,113 @@ struct OnboardingView: View {
                         .font(.system(size: 24, weight: .semibold))
                         .tracking(-0.3)
                     
-                    Text("Voice to text, anywhere")
+                    Text(currentStep == .personalization ? "Let's get to know you" : "Voice to text, anywhere")
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
                 }
             }
-            .padding(.top, 28)
-            .padding(.bottom, 20)
+            .padding(.top, 32)
+            .padding(.bottom, 24)
             
+            // Content based on step
+            if currentStep == .personalization {
+                personalizationStep
+            } else {
+                permissionsStep
+            }
+        }
+        .frame(width: 420, height: 520)
+        .background(Color(NSColor.windowBackgroundColor))
+        .onAppear {
+            // Start model download immediately
+            Task {
+                await speechRecognizer.initialize()
+            }
+            permissionsManager.checkAllPermissions()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            permissionsManager.checkAllPermissions()
+        }
+    }
+    
+    // MARK: - Step 1: Personalization
+    
+    private var personalizationStep: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            VStack(spacing: 16) {
+                // Name field
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Your Name")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                    
+                    TextField("Enter your name", text: $userName)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 15))
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                        )
+                }
+                
+                // Profession field
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Your Profession")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                    
+                    TextField("e.g. Developer, Writer, Designer", text: $userProfession)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 15))
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.black.opacity(0.15), lineWidth: 1)
+                        )
+                }
+            }
+            .padding(.horizontal, 32)
+            
+            Text("Helps personalize your experience")
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            // Bottom buttons
+            VStack(spacing: 10) {
+                Button(action: { currentStep = .permissions }) {
+                    Text("Continue")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.black)
+                        )
+                }
+                .buttonStyle(.plain)
+                
+                Button(action: { currentStep = .permissions }) {
+                    Text("Skip")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 32)
+            .padding(.bottom, 28)
+        }
+    }
+    
+    // MARK: - Step 2: Permissions
+    
+    private var permissionsStep: some View {
+        VStack(spacing: 0) {
             // Scrollable content area
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 16) {
@@ -85,13 +196,13 @@ struct OnboardingView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 32)
             }
             .frame(maxHeight: .infinity)
             
             // Bottom Area
             VStack(spacing: 16) {
-                // Model Installation Status (Separate from permissions)
+                // Model Installation Status
                 ModelStatusView(recognizer: speechRecognizer)
                 
                 // Bottom Buttons
@@ -108,7 +219,7 @@ struct OnboardingView: View {
                         }
                         .foregroundColor(canContinue ? .white : .gray)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 14)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(canContinue ? Color.black : Color.black.opacity(0.1))
@@ -127,17 +238,9 @@ struct OnboardingView: View {
                     }
                 }
             }
-            .padding(.horizontal, 28)
-            .padding(.bottom, 20)
-            .padding(.top, 4)
-        }
-        .frame(width: 340, height: 420)
-        .background(Color(NSColor.windowBackgroundColor))
-        .onAppear {
-            permissionsManager.checkAllPermissions()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            permissionsManager.checkAllPermissions()
+            .padding(.horizontal, 32)
+            .padding(.bottom, 24)
+            .padding(.top, 8)
         }
     }
 }
