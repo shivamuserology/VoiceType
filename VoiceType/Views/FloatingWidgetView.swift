@@ -54,7 +54,7 @@ struct IdlePillView: View {
                         .foregroundColor(.white.opacity(0.7))
                 }
             }
-            .frame(width: isHovered ? 130 : 36, height: isHovered ? 22 : 12)
+            .frame(width: isHovered ? 150 : 36, height: isHovered ? 22 : 12)
             .background(
                 Capsule()
                     .fill(Color.black.opacity(0.85))
