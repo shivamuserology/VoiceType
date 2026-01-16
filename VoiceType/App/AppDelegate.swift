@@ -48,6 +48,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(forName: NSNotification.Name("ShowOnboarding"), object: nil, queue: .main) { [weak self] _ in
             self?.showOnboarding()
         }
+        
+        // Listen for requests to open AI Rewrite settings (e.g. when API key missing)
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("OpenAIRewriteSettings"), object: nil, queue: .main) { [weak self] _ in
+            self?.showSettings(tab: 2, showAPIKeyError: true)
+        }
     }
     
     nonisolated func applicationWillTerminate(_ notification: Notification) {
@@ -187,14 +192,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appState.widgetVisible = visible
     }
     
-    private func showSettings() {
-        print("[AppDelegate] Showing settings")
+    private func showSettings(tab: Int = 0, showAPIKeyError: Bool = false) {
+        print("[AppDelegate] Showing settings (tab: \(tab), showAPIKeyError: \(showAPIKeyError))")
+        
+        // Always recreate window if we need to show a specific tab or error
+        if settingsWindow != nil && (tab != 0 || showAPIKeyError) {
+            settingsWindow?.close()
+            settingsWindow = nil
+        }
         
         if settingsWindow == nil {
-            let view = SettingsView(appState: appState)
+            let selectedTab = CurrentValueSubject<Int, Never>(tab)
+            let view = SettingsView(
+                appState: appState, 
+                selectedTab: Binding(
+                    get: { selectedTab.value },
+                    set: { selectedTab.send($0) }
+                ),
+                showAPIKeyError: showAPIKeyError
+            )
             
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 500, height: 400),
+                contentRect: NSRect(x: 0, y: 0, width: 520, height: 450),
                 styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false

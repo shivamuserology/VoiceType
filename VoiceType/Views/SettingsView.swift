@@ -3,7 +3,14 @@ import SwiftUI
 /// Settings/Preferences window view
 struct SettingsView: View {
     @ObservedObject var appState: AppState
-    @State private var selectedTab = 0
+    @Binding var selectedTab: Int
+    var showAPIKeyError: Bool = false
+    
+    init(appState: AppState, selectedTab: Binding<Int> = .constant(0), showAPIKeyError: Bool = false) {
+        self.appState = appState
+        self._selectedTab = selectedTab
+        self.showAPIKeyError = showAPIKeyError
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -19,9 +26,9 @@ struct SettingsView: View {
                 }
                 .tag(1)
             
-            AIRewriteSettingsView()
+            AIRewriteSettingsView(showAPIKeyError: showAPIKeyError)
                 .tabItem {
-                    Label("AI Rewrite", systemImage: "wand.and.stars")
+                    Label("AI Rewrite", systemImage: "sparkles")
                 }
                 .tag(2)
             
@@ -31,7 +38,7 @@ struct SettingsView: View {
                 }
                 .tag(3)
         }
-        .frame(width: 520, height: 420)
+        .frame(width: 520, height: 450)
     }
 }
 
@@ -159,6 +166,9 @@ struct AIRewriteSettingsView: View {
     @State private var apiKeyInput: String = ""
     @State private var hasAPIKey: Bool = false
     @State private var showAPIKey: Bool = false
+    @State private var displayedPrompt: String = ""
+    
+    var showAPIKeyError: Bool = false
     
     var body: some View {
         Form {
@@ -206,8 +216,13 @@ struct AIRewriteSettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     } else {
-                        Text("No API Key")
-                            .foregroundColor(.orange)
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                            Text(showAPIKeyError ? "API Key Required!" : "No API Key")
+                                .foregroundColor(showAPIKeyError ? .red : .orange)
+                                .fontWeight(showAPIKeyError ? .semibold : .regular)
+                        }
                     }
                 }
                 
@@ -215,32 +230,41 @@ struct AIRewriteSettingsView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             } header: {
-                Text("Gemini API Key")
+                HStack {
+                    Text("Gemini API Key")
+                    if showAPIKeyError && !hasAPIKey {
+                        Text("⚠️ Required")
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+                }
             }
             
             Section {
-                TextEditor(text: $customPrompt)
+                TextEditor(text: $displayedPrompt)
                     .font(.system(size: 12, design: .monospaced))
                     .frame(height: 100)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
                             .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                     )
-                
-                if customPrompt.isEmpty {
-                    Text("Using default prompt. Add a custom prompt to override.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                    .onChange(of: displayedPrompt) { oldValue, newValue in
+                        // Only save to customPrompt if it differs from default
+                        if newValue != GeminiService.defaultSystemPrompt {
+                            customPrompt = newValue
+                        } else {
+                            customPrompt = ""
+                        }
+                    }
                 
                 Button("Reset to Default") {
+                    displayedPrompt = GeminiService.defaultSystemPrompt
                     customPrompt = ""
                 }
-                .disabled(customPrompt.isEmpty)
             } header: {
-                Text("Custom System Prompt")
+                Text("System Prompt")
             } footer: {
-                Text("Default: Rewrite text to be clearer and better structured while preserving meaning and tone.")
+                Text("Customize how AI rewrites your transcriptions.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -250,9 +274,10 @@ struct AIRewriteSettingsView: View {
         .onAppear {
             hasAPIKey = GeminiService.hasAPIKey()
             if hasAPIKey {
-                // Show masked placeholder if key exists
                 apiKeyInput = "••••••••••••••••"
             }
+            // Show the custom prompt if set, otherwise show default
+            displayedPrompt = customPrompt.isEmpty ? GeminiService.defaultSystemPrompt : customPrompt
         }
     }
 }

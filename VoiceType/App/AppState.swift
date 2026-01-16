@@ -296,10 +296,29 @@ class AppState: ObservableObject {
         } catch is CancellationError {
             print("[AppState] Rewrite was cancelled")
             recordingState = .idle
+        } catch let geminiError as GeminiService.GeminiError {
+            print("[AppState] Rewrite failed: \(geminiError)")
+            
+            // Special handling for no API key error
+            if case .noAPIKey = geminiError {
+                recordingState = .error("API key required for AI rewrite")
+                // Open settings to AI Rewrite tab with error state
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NSNotification.Name("OpenAIRewriteSettings"), object: nil)
+                }
+            } else {
+                recordingState = .error(geminiError.localizedDescription ?? "Rewrite failed")
+            }
+            
+            // Auto-dismiss error after 4 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+                if case .error = self?.recordingState {
+                    self?.recordingState = .idle
+                }
+            }
         } catch {
             print("[AppState] Rewrite failed: \(error)")
-            // Keep raw transcription, show error briefly
-            recordingState = .error("Rewrite failed: \(error.localizedDescription)")
+            recordingState = .error("Rewrite failed")
             // Auto-dismiss error after 3 seconds
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 if case .error = self?.recordingState {
