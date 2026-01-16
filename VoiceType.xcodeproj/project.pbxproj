@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		377F80FE2F0B9EFB0045D15F /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = PKG_DEP001 /* WhisperKit */; };
+		377F80FE2F0B9EFB0045D160 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = PKG_DEP002 /* GoogleGenerativeAI */; };
 		APP001 /* VoiceTypeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC001 /* VoiceTypeApp.swift */; };
 		APP002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC002 /* AppDelegate.swift */; };
 		APP003 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC003 /* AppState.swift */; };
@@ -64,6 +65,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				377F80FE2F0B9EFB0045D15F /* WhisperKit in Frameworks */,
+				377F80FE2F0B9EFB0045D160 /* GoogleGenerativeAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +192,7 @@
 			name = VoiceType;
 			packageProductDependencies = (
 				PKG_DEP001 /* WhisperKit */,
+				PKG_DEP002 /* GoogleGenerativeAI */,
 			);
 			productName = VoiceType;
 			productReference = PROD001 /* VoiceType.app */;
@@ -221,6 +224,7 @@
 			mainGroup = ROOT;
 			packageReferences = (
 				PKG_REF001 /* XCRemoteSwiftPackageReference "WhisperKit" */,
+				PKG_REF002 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 			);
 			productRefGroup = GRP_PROD /* Products */;
 			projectDirPath = "";
@@ -511,6 +515,14 @@
 				minimumVersion = 0.8.0;
 			};
 		};
+		PKG_REF002 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/generative-ai-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -518,6 +530,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = PKG_REF001 /* XCRemoteSwiftPackageReference "WhisperKit" */;
 			productName = WhisperKit;
+		};
+		PKG_DEP002 /* GoogleGenerativeAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = PKG_REF002 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			productName = GoogleGenerativeAI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
