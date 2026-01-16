@@ -82,7 +82,7 @@ class FloatingPanel: NSPanel {
         let windowWidth: CGFloat = 300
         
         let x = screenFrame.midX - (windowWidth / 2)
-        let y = screenFrame.minY + 20 // 20px from bottom (was 50)
+        let y = screenFrame.minY + 5 // 5px from bottom (was 20)
         
         self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 30), display: true)
     }
