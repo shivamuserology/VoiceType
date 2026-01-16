@@ -42,16 +42,29 @@ struct IdlePillView: View {
         Button(action: onTap) {
             HStack(spacing: 4) {
                 if isHovered {
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Text("Click or hold")
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.7))
+                        
+                        // Keyboard key style for "fn"
                         Text("fn")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
-                            .fontWeight(.semibold)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(Color.white.opacity(0.2))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 3)
+                                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 0.5)
+                            )
+                        
                         Text("to dictate")
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.7))
                     }
-                    .font(.system(size: 10, weight: .medium)) // Scale down from 12
+                    .font(.system(size: 10, weight: .medium))
                 } else {
                     Image(systemName: "waveform")
                         .font(.system(size: isHovered ? 12 : 8))
