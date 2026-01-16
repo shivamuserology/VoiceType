@@ -10,7 +10,7 @@ class FloatingPanel: NSPanel {
     /// Initialize the floating panel with SwiftUI content
     init<Content: View>(content: Content) {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 30),
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 24),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -29,7 +29,7 @@ class FloatingPanel: NSPanel {
         hosting.translatesAutoresizingMaskIntoConstraints = false
         
         // Create a container view to avoid constraint issues
-        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 30))
+        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
         containerView.wantsLayer = true
         containerView.layer?.backgroundColor = .clear
         containerView.addSubview(hosting)
@@ -78,13 +78,13 @@ class FloatingPanel: NSPanel {
     func positionAtBottomCenter() {
         guard let screen = NSScreen.main else { return }
         
-        let screenFrame = screen.visibleFrame
+        let screenFrame = screen.frame // Use absolute frame to go below Dock if needed, or closer to it
         let windowWidth: CGFloat = 300
         
         let x = screenFrame.midX - (windowWidth / 2)
-        let y = screenFrame.minY + 20 // 20px from bottom (was 50)
+        let y = screenFrame.minY + 12 // 12pt from absolute bottom
         
-        self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 30), display: true)
+        self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 24), display: true)
     }
     
     // MARK: - Prevent Focus Stealing
