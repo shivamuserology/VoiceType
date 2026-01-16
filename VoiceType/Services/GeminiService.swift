@@ -1,7 +1,7 @@
 import Foundation
-import Security
+import GoogleGenerativeAI
 
-/// Service for interacting with Gemini Flash API
+/// Service for interacting with Gemini Flash API via GoogleGenerativeAI SDK
 class GeminiService {
     
     // MARK: - Keychain Keys
@@ -9,18 +9,16 @@ class GeminiService {
     private static let keychainService = "com.voicetype.gemini"
     private static let keychainAccount = "api-key"
     
-    // MARK: - API Configuration
+    // MARK: - Legacy Constants
     
-    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
+    // baseURL is handled by the SDK
     
     /// Models to try in order (fallback chain for rate limiting)
     private let modelChain = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash-8b",
-        "gemini-1.5-flash"
+        "gemini-2.0-flash",     // Primary
+        "gemini-1.5-flash-8b",  // Faster fallback
+        "gemini-1.5-flash"      // Standard fallback
     ]
-    
-    // MARK: - Default System Prompt
     
     // MARK: - Default System Prompt
     
@@ -35,36 +33,30 @@ class GeminiService {
     
     enum GeminiError: Error, LocalizedError {
         case noAPIKey
-        case invalidURL
-        case networkError(Error)
-        case invalidResponse
         case apiError(String)
         case emptyResponse
         case allModelsRateLimited
+        case sdkError(Error)
         
         var errorDescription: String? {
             switch self {
             case .noAPIKey:
                 return "Gemini API key not configured"
-            case .invalidURL:
-                return "Invalid API URL"
-            case .networkError(let error):
-                return "Network error: \(error.localizedDescription)"
-            case .invalidResponse:
-                return "Invalid response from API"
             case .apiError(let message):
                 return message
             case .emptyResponse:
                 return "Empty response from API"
             case .allModelsRateLimited:
                 return "Rate limited - try again later"
+            case .sdkError(let error):
+                return "AI Error: \(error.localizedDescription)"
             }
         }
     }
     
     // MARK: - API Key Storage (UserDefaults)
     
-    /// Save API key to UserDefaults (to avoid Keychain persistence prompts in dev)
+    /// Save API key to UserDefaults
     static func saveAPIKey(_ key: String) -> Bool {
         UserDefaults.standard.set(key, forKey: keychainAccount)
         return true
@@ -98,99 +90,78 @@ class GeminiService {
             throw GeminiError.noAPIKey
         }
         
-        let sysPrompt = systemPrompt ?? GeminiService.defaultSystemPrompt
+        let sysPromptText = systemPrompt ?? GeminiService.defaultSystemPrompt
         
         // Try each model in the chain
-        for (index, model) in modelChain.enumerated() {
+        for (index, modelName) in modelChain.enumerated() {
             do {
-                print("[GeminiService] Trying model: \(model)")
-                // Pass system prompt separately
-                let result = try await callModel(model: model, apiKey: apiKey, prompt: text, systemPrompt: sysPrompt)
-                return result
-            } catch GeminiError.apiError(let message) where message.contains("429") {
-                print("[GeminiService] Rate limited on \(model), trying next...")
-                if index == modelChain.count - 1 {
-                    throw GeminiError.allModelsRateLimited
+                print("[GeminiService] Trying model: \(modelName)")
+                return try await callModelSDK(modelName: modelName, apiKey: apiKey, prompt: text, systemPrompt: sysPromptText)
+            } catch {
+                print("[GeminiService] Error on \(modelName): \(error.localizedDescription)")
+                
+                // Check if it's a rate limit error (SDK errors might wrap it)
+                let errorStr = "\(error)".lowercased()
+                if errorStr.contains("429") || errorStr.contains("resourceexhausted") {
+                    print("[GeminiService] Rate limited, trying next...")
+                    if index == modelChain.count - 1 {
+                        throw GeminiError.allModelsRateLimited
+                    }
+                    continue
                 }
-                continue
+                
+                // If it's the last model, throw
+                if index == modelChain.count - 1 {
+                    throw GeminiError.sdkError(error)
+                }
             }
         }
         
         throw GeminiError.allModelsRateLimited
     }
     
-    /// Call a specific model
-    private func callModel(model: String, apiKey: String, prompt: String, systemPrompt: String) async throws -> String {
-        guard let url = URL(string: "\(baseURL)/\(model):generateContent?key=\(apiKey)") else {
-            throw GeminiError.invalidURL
-        }
+    /// Call a specific model using the SDK
+    private func callModelSDK(modelName: String, apiKey: String, prompt: String, systemPrompt: String) async throws -> String {
+        let config = GenerationConfig(
+            temperature: 0.7,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 2048,
+            responseMimeType: "text/plain"
+        )
         
-        // Build request body with system instruction
-        var requestBody: [String: Any] = [
-            "contents": [
-                [
-                    "role": "user",
-                    "parts": [
-                        ["text": prompt]
-                    ]
-                ]
-            ],
-            "generationConfig": [
-                "temperature": 0.7,
-                "maxOutputTokens": 2048
-            ]
-        ]
+        let model = GenerativeModel(
+            name: modelName,
+            apiKey: apiKey,
+            generationConfig: config,
+            systemInstruction: ModelContent(role: "system", parts: [.text(systemPrompt)])
+        )
         
-        // Add system instruction if supported by the model (Flash 1.5+ supports it)
-        if !systemPrompt.isEmpty {
-            requestBody["systemInstruction"] = [
-                "parts": [
-                    ["text": systemPrompt]
-                ]
-            ]
-        }
-
+        // Use streaming to filter thinking tokens if present (following user pattern)
+        let stream = model.generateContentStream(prompt)
+        var finalOutput = ""
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw GeminiError.invalidResponse
-        }
-        
-        if httpResponse.statusCode == 429 {
-            throw GeminiError.apiError("429 Rate Limited")
-        }
-        
-        if httpResponse.statusCode != 200 {
-            if let errorBody = String(data: data, encoding: .utf8) {
-                print("[GeminiService] API Error: \(errorBody)")
+        for try await chunk in stream {
+            if let candidates = chunk.candidates {
+                for candidate in candidates {
+                    for part in candidate.content.parts {
+                        // Only process text parts
+                        if case .text(let text) = part {
+                            // In the future, if specific thinking parts need filtering logic, add checks here.
+                            // Currently we assume standard text parts are the output.
+                            finalOutput += text
+                        }
+                    }
+                }
             }
-            throw GeminiError.apiError("Status \(httpResponse.statusCode)")
         }
         
-        // Parse response
-        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let candidates = json["candidates"] as? [[String: Any]],
-              let firstCandidate = candidates.first,
-              let content = firstCandidate["content"] as? [String: Any],
-              let parts = content["parts"] as? [[String: Any]],
-              let firstPart = parts.first,
-              let rewrittenText = firstPart["text"] as? String else {
-            throw GeminiError.invalidResponse
-        }
-        
-        let trimmedText = rewrittenText.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard !trimmedText.isEmpty else {
+        let trimmed = finalOutput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
             throw GeminiError.emptyResponse
         }
         
-        print("[GeminiService] Rewrite complete with \(model): \(trimmedText.prefix(50))...")
-        return trimmedText
+        print("[GeminiService] Rewrite complete with \(modelName): \(trimmed.prefix(50))...")
+        return trimmed
     }
 }
