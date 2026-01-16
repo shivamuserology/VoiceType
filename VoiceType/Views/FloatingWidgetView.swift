@@ -85,33 +85,33 @@ struct RecordingPillView: View {
             // Cancel button
             Button(action: onCancel) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: 8, weight: .bold))
                     .foregroundColor(.white)
             }
             .buttonStyle(.plain)
-            .frame(width: 20, height: 20)
+            .frame(width: 17, height: 17)
             .background(Circle().fill(Color.white.opacity(0.2)))
             
             // Audio waveform visualization
             HStack(spacing: 3) {
                 ForEach(0..<8, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 1.5)
+                    RoundedRectangle(cornerRadius: 1)
                         .fill(Color.white.opacity(0.9))
-                        .frame(width: 3, height: waveHeight(for: index))
+                        .frame(width: 1.5, height: waveHeight(for: index))
                 }
             }
-            .frame(width: 40, height: 18)
+            .frame(width: 36, height: 18)
             
             // Stop/Finish button
             Button(action: onStop) {
                 ZStack {
                     Circle()
                         .fill(Color.red)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 17, height: 17)
                     
-                    RoundedRectangle(cornerRadius: 2)
+                    RoundedRectangle(cornerRadius: 1.5)
                         .fill(Color.white)
-                        .frame(width: 8, height: 8)
+                        .frame(width: 7, height: 7)
                 }
             }
             .buttonStyle(.plain)
