@@ -328,8 +328,9 @@ struct ErrorPillView: View {
 #Preview {
     VStack(spacing: 30) {
         IdlePillView(onTap: {})
-        RecordingPillView(audioLevel: 0.5, onCancel: {}, onStop: {})
+        RecordingPillView(audioLevel: 0.5, onCancel: {}, onStop: {}, onStopWithRewrite: {})
         TranscribingPillView()
+        RewritingPillView(onCancel: {})
         ErrorPillView(message: "Microphone access denied", onDismiss: {})
     }
     .background(Color.gray.opacity(0.3))
