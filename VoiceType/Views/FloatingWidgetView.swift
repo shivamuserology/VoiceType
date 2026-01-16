@@ -134,14 +134,14 @@ struct RecordingPillView: View {
             }
             .buttonStyle(.plain)
             
-            // AI Rewrite button (sparkles icon - Design System style)
+            // AI Rewrite button (sparkles icon - Gemini style)
             Button(action: onStopWithRewrite) {
                 ZStack {
                     Circle()
-                        .fill(DesignSystem.Color.rewriting)
+                        .fill(Color.blue)
                         .frame(width: 17, height: 17)
                     
-                    Image(systemName: DesignSystem.Icon.rewrite)
+                    Image(systemName: "sparkles")
                         .font(.system(size: 9, weight: .medium))
                         .foregroundColor(.white)
                 }
@@ -152,7 +152,7 @@ struct RecordingPillView: View {
         .padding(.horizontal, 12)
         .background(
             Capsule()
-                .fill(DesignSystem.Color.widgetBackground.opacity(0.9))
+                .fill(Color.black.opacity(0.9))
         )
         .overlay(
             Capsule()
@@ -179,16 +179,16 @@ struct TranscribingPillView: View {
     @State private var animating = false
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 4) { // Spacing 6->4
             Text("Transcribing")
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: 10, weight: .medium)) // Scale 13->10
                 .foregroundColor(.white)
             
-            HStack(spacing: 2) {
+            HStack(spacing: 2) { // Spacing 4->2
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 3, height: 3)
+                        .frame(width: 3, height: 3) // Scale 5->3
                         .opacity(animating ? 1 : 0.3)
                         .animation(
                             Animation.easeInOut(duration: 0.5)
@@ -199,11 +199,11 @@ struct TranscribingPillView: View {
                 }
             }
         }
-        .frame(height: 22)
-        .padding(.horizontal, 10)
+        .frame(height: 22) // Scale 44->22
+        .padding(.horizontal, 10) // Padding 18->10
         .background(
             Capsule()
-                .fill(DesignSystem.Color.widgetBackground.opacity(0.9))
+                .fill(Color.black.opacity(0.9))
         )
         .overlay(
             Capsule()
@@ -233,10 +233,10 @@ struct RewritingPillView: View {
             .frame(width: 14, height: 14)
             .background(Circle().fill(Color.white.opacity(0.15)))
             
-            // Sparkles icon
-            Image(systemName: DesignSystem.Icon.rewrite)
+            // Sparkles icon (Gemini style)
+            Image(systemName: "sparkles")
                 .font(.system(size: 10, weight: .medium))
-                .foregroundColor(DesignSystem.Color.rewriting)
+                .foregroundColor(.blue)
             
             Text("Rewriting")
                 .font(.system(size: 10, weight: .medium))
@@ -246,7 +246,7 @@ struct RewritingPillView: View {
             HStack(spacing: 2) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(DesignSystem.Color.rewriting)
+                        .fill(Color.blue)
                         .frame(width: 3, height: 3)
                         .opacity(animating ? 1 : 0.3)
                         .animation(
@@ -262,11 +262,11 @@ struct RewritingPillView: View {
         .padding(.horizontal, 10)
         .background(
             Capsule()
-                .fill(DesignSystem.Color.widgetBackground.opacity(0.9))
+                .fill(Color.black.opacity(0.9))
         )
         .overlay(
             Capsule()
-                .strokeBorder(DesignSystem.Color.rewriting.opacity(0.3), lineWidth: 1)
+                .strokeBorder(Color.blue.opacity(0.3), lineWidth: 1)
         )
         .onAppear {
             animating = true

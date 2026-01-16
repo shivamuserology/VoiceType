@@ -24,9 +24,9 @@ class GeminiService {
     
     static let defaultSystemPrompt = """
     Rewrite the following text to be clearer and better structured.
-    Preserve the original meaning and intent completely.
-    Do not add new information or change the message.
-    Keep the same tone and formality level.
+    Fix all typos and transcription issues based best judgement. Fix grammatical errors if any.  
+    Do not add new information or change the message Preserve the original meaning, flow and order of information, and intent completely.
+    Keep the same tone, detail and formality level. Just output 1 final re-written text and nothing else.
     """
     
     // MARK: - Errors

@@ -21,6 +21,7 @@
 		UTL001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* Constants.swift */; };
 		UTL002 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* Extensions.swift */; };
 
+
 		VW001 /* FloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC009 /* FloatingPanel.swift */; };
 		VW002 /* FloatingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC010 /* FloatingWidgetView.swift */; };
 		VW003 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC011 /* MenuBarController.swift */; };
@@ -28,7 +29,6 @@
 		VW005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC013 /* SettingsView.swift */; };
 		VW006 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC017 /* HistoryView.swift */; };
 		MOD001 /* TranscriptionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC018 /* TranscriptionHistory.swift */; };
-		SRC019 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC019 /* DesignSystem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,7 +49,8 @@
 		SRC013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		SRC014 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		SRC015 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		SRC019 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+
+
 		SUP001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		SUP002 /* VoiceType.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceType.entitlements; sourceTree = "<group>"; };
 		SRC016 /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiService.swift; sourceTree = "<group>"; };
@@ -144,9 +145,7 @@
 			children = (
 				SRC014 /* Constants.swift */,
 				SRC015 /* Extensions.swift */,
-SRC019 /* DesignSystem.swift */,
 
-SRC019 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 
 			);
 			path = Utilities;
@@ -266,7 +265,6 @@ SRC019 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = s
 				MOD001 /* TranscriptionHistory.swift in Sources */,
 				UTL001 /* Constants.swift in Sources */,
 				UTL002 /* Extensions.swift in Sources */,
-				SRC019 /* DesignSystem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
