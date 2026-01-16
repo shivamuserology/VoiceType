@@ -54,15 +54,16 @@ struct IdlePillView: View {
                         .foregroundColor(.white.opacity(0.7))
                 }
             }
-            // Collapsed height: 12, Hovered width: 150
-            .frame(width: isHovered ? 150 : 45, height: isHovered ? 22 : 12)
+            // Fixed height to prevent jumping, use scaleEffect for collapsed appearance
+            .frame(width: isHovered ? 150 : 45, height: 22)
+            .scaleEffect(isHovered ? 1.0 : 0.55, anchor: .bottom)
             .background(
                 Capsule()
                     .fill(Color.black.opacity(0.85))
             )
             .overlay(
                 Capsule()
-                                        .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
