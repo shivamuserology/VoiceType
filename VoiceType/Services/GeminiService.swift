@@ -142,10 +142,9 @@ class GeminiService {
         var finalOutput = ""
         
         for try await chunk in stream {
-            if let candidates = chunk.candidates {
-                for candidate in candidates {
-                    for part in candidate.content.parts {
-                        // Only process text parts
+            for candidate in chunk.candidates {
+                for part in candidate.content.parts {
+                    // Only process text parts
                         if case .text(let text) = part {
                             // In the future, if specific thinking parts need filtering logic, add checks here.
                             // Currently we assume standard text parts are the output.
