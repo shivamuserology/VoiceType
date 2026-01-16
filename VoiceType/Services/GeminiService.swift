@@ -90,7 +90,12 @@ class GeminiService {
             throw GeminiError.noAPIKey
         }
         
-        let sysPromptText = systemPrompt ?? GeminiService.defaultSystemPrompt
+        var sysPromptText = GeminiService.defaultSystemPrompt
+        if let provided = systemPrompt, !provided.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            sysPromptText = provided
+        }
+        
+        print("[GeminiService] Using System Prompt: \(sysPromptText.prefix(20))...")
         
         // Try each model in the chain
         for (index, modelName) in modelChain.enumerated() {
