@@ -32,100 +32,103 @@ class AudioRecorder: ObservableObject {
     
     /// Start recording audio from the default input device
     /// - Returns: URL of the temporary audio file being recorded
-    func startRecording() throws -> URL {
-        let engine = AVAudioEngine()
-        let inputNode = engine.inputNode
-        
-        // Get the native format of the input node's output
-        let nativeFormat = inputNode.outputFormat(forBus: 0)
-        
-        // Check if we have a valid format
-        guard nativeFormat.sampleRate > 0 && nativeFormat.channelCount > 0 else {
-            throw AudioRecorderError.noInputAvailable
-        }
-        
-        print("[AudioRecorder] Native input format: \(nativeFormat.sampleRate) Hz, \(nativeFormat.channelCount) ch")
-        
-        // Create 16kHz mono format for WhisperKit output file
-        guard let outputFormat = AVAudioFormat(
-            commonFormat: .pcmFormatFloat32,
-            sampleRate: 16000,
-            channels: 1,
-            interleaved: false
-        ) else {
-            throw AudioRecorderError.formatConversionFailed
-        }
-        
-        // Create converter from native format to 16kHz mono
-        guard let converter = AVAudioConverter(from: nativeFormat, to: outputFormat) else {
-            throw AudioRecorderError.formatConversionFailed
-        }
-        
-        // Create temp file for recording (16kHz mono for WhisperKit)
-        let tempDir = FileManager.default.temporaryDirectory
-        let fileName = "voicetype_\(UUID().uuidString).wav"
-        let url = tempDir.appendingPathComponent(fileName)
-        
-        // Create audio file with 16kHz mono format
-        guard let audioFile = try? AVAudioFile(forWriting: url, settings: outputFormat.settings) else {
-            throw AudioRecorderError.fileCreationFailed
-        }
-        
-        self.audioFile = audioFile
-        
-        // Install tap using native format (must match input node's output)
-        inputNode.installTap(onBus: 0, bufferSize: 4096, format: nativeFormat) { [weak self] buffer, _ in
-            guard let self = self else { return }
+    func startRecording() async throws -> URL {
+        // Run audio engine setup on background thread to prevent UI freeze
+        return try await Task.detached(priority: .userInitiated) {
+            let engine = AVAudioEngine()
+            let inputNode = engine.inputNode
             
-            // Calculate audio level for visualization
-            let level = self.calculateAudioLevel(buffer: buffer)
-            DispatchQueue.main.async {
-                self.audioLevel = level
+            // Get the native format of the input node's output
+            let nativeFormat = inputNode.outputFormat(forBus: 0)
+            
+            // Check if we have a valid format
+            guard nativeFormat.sampleRate > 0 && nativeFormat.channelCount > 0 else {
+                throw AudioRecorderError.noInputAvailable
             }
             
-            // Convert buffer to 16kHz mono
-            let frameCount = AVAudioFrameCount(Double(buffer.frameLength) * 16000.0 / nativeFormat.sampleRate)
-            guard let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: frameCount) else { return }
+            print("[AudioRecorder] Native input format: \(nativeFormat.sampleRate) Hz, \(nativeFormat.channelCount) ch")
             
-            var error: NSError?
-            var inputBufferConsumed = false
+            // Create 16kHz mono format for WhisperKit output file
+            guard let outputFormat = AVAudioFormat(
+                commonFormat: .pcmFormatFloat32,
+                sampleRate: 16000,
+                channels: 1,
+                interleaved: false
+            ) else {
+                throw AudioRecorderError.formatConversionFailed
+            }
             
-            converter.convert(to: convertedBuffer, error: &error) { inNumPackets, outStatus in
-                if inputBufferConsumed {
-                    outStatus.pointee = .noDataNow
-                    return nil
+            // Create converter from native format to 16kHz mono
+            guard let converter = AVAudioConverter(from: nativeFormat, to: outputFormat) else {
+                throw AudioRecorderError.formatConversionFailed
+            }
+            
+            // Create temp file for recording (16kHz mono for WhisperKit)
+            let tempDir = FileManager.default.temporaryDirectory
+            let fileName = "voicetype_\(UUID().uuidString).wav"
+            let url = tempDir.appendingPathComponent(fileName)
+            
+            // Create audio file with 16kHz mono format
+            guard let audioFile = try? AVAudioFile(forWriting: url, settings: outputFormat.settings) else {
+                throw AudioRecorderError.fileCreationFailed
+            }
+            
+            // Return to main actor to set properties and start engine
+            return try await MainActor.run {
+                self.audioFile = audioFile
+                
+                // Install tap using native format (must match input node's output)
+                inputNode.installTap(onBus: 0, bufferSize: 4096, format: nativeFormat) { [weak self] buffer, _ in
+                    guard let self = self else { return }
+                    
+                    // Calculate audio level for visualization
+                    let level = self.calculateAudioLevel(buffer: buffer)
+                    DispatchQueue.main.async {
+                        self.audioLevel = level
+                    }
+                    
+                    // Convert buffer to 16kHz mono
+                    let frameCount = AVAudioFrameCount(Double(buffer.frameLength) * 16000.0 / nativeFormat.sampleRate)
+                    guard let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: frameCount) else { return }
+                    
+                    var error: NSError?
+                    var inputBufferConsumed = false
+                    
+                    converter.convert(to: convertedBuffer, error: &error) { inNumPackets, outStatus in
+                        if inputBufferConsumed {
+                            outStatus.pointee = .noDataNow
+                            return nil
+                        }
+                        inputBufferConsumed = true
+                        outStatus.pointee = .haveData
+                        return buffer
+                    }
+                    
+                    if error == nil && convertedBuffer.frameLength > 0 {
+                        do {
+                            try self.audioFile?.write(from: convertedBuffer)
+                        } catch {
+                            print("[AudioRecorder] Error writing converted audio: \(error)")
+                        }
+                    }
                 }
-                inputBufferConsumed = true
-                outStatus.pointee = .haveData
-                return buffer
-            }
-            
-            if error == nil && convertedBuffer.frameLength > 0 {
+                
                 do {
-                    try self.audioFile?.write(from: convertedBuffer)
+                    try engine.start()
                 } catch {
-                    print("[AudioRecorder] Error writing converted audio: \(error)")
+                    inputNode.removeTap(onBus: 0)
+                    print("[AudioRecorder] Engine start error: \(error)")
+                    throw AudioRecorderError.engineStartFailed
                 }
+                
+                self.audioEngine = engine
+                self.recordingURL = url
+                self.isRecording = true
+                
+                print("[AudioRecorder] Started recording to: \(url.path)")
+                return url
             }
-        }
-        
-        do {
-            try engine.start()
-        } catch {
-            inputNode.removeTap(onBus: 0)
-            print("[AudioRecorder] Engine start error: \(error)")
-            throw AudioRecorderError.engineStartFailed
-        }
-        
-        self.audioEngine = engine
-        self.recordingURL = url
-        
-        DispatchQueue.main.async {
-            self.isRecording = true
-        }
-        
-        print("[AudioRecorder] Started recording to: \(url.path)")
-        return url
+        }.value
     }
     
     /// Stop recording and return the URL of the recorded audio file

@@ -149,13 +149,19 @@ class AppState: ObservableObject {
             return
         }
         
-        do {
-            recordingURL = try audioRecorder.startRecording()
-            recordingState = .recording
-            print("[AppState] Recording started")
-        } catch {
-            print("[AppState] Failed to start recording: \(error)")
-            recordingState = .error("Failed to start recording")
+        // Start recording asynchronously
+        Task {
+            do {
+                // Optimistically update UI to feel responsive
+                recordingState = .recording
+                print("[AppState] Starting recording engine (async)...")
+                
+                recordingURL = try await audioRecorder.startRecording()
+                print("[AppState] Recording engine started successfully")
+            } catch {
+                print("[AppState] Failed to start recording: \(error)")
+                recordingState = .error("Failed to start")
+            }
         }
     }
     
