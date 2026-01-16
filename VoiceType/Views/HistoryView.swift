@@ -163,27 +163,13 @@ struct HistoryEntryRow: View {
                 
                 Spacer()
                 
-                // Actions (visible on hover)
-                if isHovered || isCopied {
-                    HStack(spacing: 12) {
-                        Button(action: onCopy) {
-                            if isCopied {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.green)
-                            } else {
-                                Image(systemName: "doc.on.doc")
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .help("Copy to clipboard")
-                        
-                        Button(action: onDelete) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red.opacity(0.8))
-                        }
-                        .buttonStyle(.plain)
+            // Actions (visible on hover)
+                if isHovered {
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red.opacity(0.8))
                     }
+                    .buttonStyle(.plain)
                     .transition(.opacity)
                 }
             }
@@ -197,9 +183,13 @@ struct HistoryEntryRow: View {
                 HStack(alignment: .top, spacing: 0) {
                     // Original (Left)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("ORIGINAL")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary.opacity(0.7))
+                        HStack {
+                            Text("ORIGINAL")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(.secondary.opacity(0.7))
+                            Spacer()
+                            HistoryCopyButton(text: entry.rawText)
+                        }
                         Text(entry.rawText)
                             .font(.system(size: 13))
                             .foregroundColor(.secondary)
@@ -218,9 +208,13 @@ struct HistoryEntryRow: View {
                     
                     // Rewritten (Right)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("REWRITTEN")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.blue.opacity(0.8))
+                        HStack {
+                            Text("REWRITTEN")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(.blue.opacity(0.8))
+                            Spacer()
+                            HistoryCopyButton(text: entry.rewrittenText ?? "")
+                        }
                         Text(entry.rewrittenText ?? "")
                             .font(.system(size: 13))
                             .foregroundColor(.primary)
@@ -233,13 +227,19 @@ struct HistoryEntryRow: View {
                 }
             } else {
                 // Single column layout
-                Text(entry.rawText)
-                    .font(.system(size: 13))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                    .lineLimit(nil)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Spacer()
+                        HistoryCopyButton(text: entry.rawText)
+                    }
+                    Text(entry.rawText)
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(nil)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         }
         .background(isHovered ? Color(NSColor.controlBackgroundColor) : Color(NSColor.windowBackgroundColor))
@@ -288,6 +288,53 @@ struct HistoryEntryRow: View {
         } else {
             formatter.dateFormat = "MMM d, h:mm a"
             return formatter.string(from: date)
+        }
+    }
+}
+
+struct HistoryCopyButton: View {
+    let text: String
+    @State private var isCopied = false
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: {
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(text, forType: .string)
+            
+            withAnimation {
+                isCopied = true
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation {
+                    isCopied = false
+                }
+            }
+        }) {
+            HStack(spacing: 4) {
+                if isCopied {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("Copied")
+                        .font(.system(size: 10, weight: .medium))
+                } else {
+                    Image(systemName: "doc.on.doc")
+                        .font(.system(size: 10))
+                }
+            }
+            .foregroundColor(isCopied ? .green : (isHovered ? .primary : .secondary))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(isHovered ? Color.primary.opacity(0.05) : Color.clear)
+            )
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            isHovered = hovering
         }
     }
 }
