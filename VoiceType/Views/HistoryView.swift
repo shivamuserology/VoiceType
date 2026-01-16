@@ -139,27 +139,27 @@ struct HistoryEntryRow: View {
             // Header: Timestamp & Badge
             HStack(spacing: 8) {
                 if entry.wasRewritten {
-                    Image(systemName: "sparkles")
+                    Image(systemName: DesignSystem.Icon.rewrite)
                         .font(.system(size: 10))
-                        .foregroundColor(.blue)
+                        .foregroundColor(DesignSystem.Color.rewriting)
                     Text("AI Rewrite")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.blue)
+                        .foregroundColor(DesignSystem.Color.rewriting)
                 } else {
-                    Image(systemName: "waveform")
+                    Image(systemName: DesignSystem.Icon.recording)
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignSystem.Color.secondaryText)
                     Text("Transcription")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignSystem.Color.secondaryText)
                 }
                 
                 Text("•")
-                    .foregroundColor(.secondary.opacity(0.5))
+                    .foregroundColor(DesignSystem.Color.secondaryText.opacity(0.5))
                 
                 Text(formatDate(entry.timestamp))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(DesignSystem.Color.secondaryText)
                 
                 Spacer()
                 
@@ -172,7 +172,7 @@ struct HistoryEntryRow: View {
                                     .foregroundColor(.green)
                             } else {
                                 Image(systemName: "doc.on.doc")
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(DesignSystem.Color.text)
                             }
                         }
                         .buttonStyle(.plain)
@@ -199,10 +199,10 @@ struct HistoryEntryRow: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("ORIGINAL")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary.opacity(0.7))
+                            .foregroundColor(DesignSystem.Color.secondaryText.opacity(0.7))
                         Text(entry.rawText)
                             .font(.system(size: 13))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignSystem.Color.secondaryText)
                             .lineLimit(nil)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -220,7 +220,7 @@ struct HistoryEntryRow: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("REWRITTEN")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.blue.opacity(0.8))
+                            .foregroundColor(DesignSystem.Color.rewriting.opacity(0.8))
                         Text(entry.rewrittenText ?? "")
                             .font(.system(size: 13))
                             .foregroundColor(.primary)
