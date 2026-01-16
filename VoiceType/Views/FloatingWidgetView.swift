@@ -50,12 +50,12 @@ struct IdlePillView: View {
                     .font(.system(size: 10, weight: .medium)) // Scale down from 12
                 } else {
                     Image(systemName: "waveform")
-                        .font(.system(size: 12)) // Scale down from 16
+                        .font(.system(size: 8)) // Scale down for 12pt height
                         .foregroundColor(.white.opacity(0.7))
                 }
             }
-            // Scale down width: 80->45, 180->120
-            .frame(width: isHovered ? 130 : 45, height: 22)
+            // Collapsed height: 12, Hovered width: 150
+            .frame(width: isHovered ? 150 : 45, height: isHovered ? 22 : 12)
             .background(
                 Capsule()
                     .fill(Color.black.opacity(0.85))
