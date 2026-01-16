@@ -11,7 +11,7 @@ class GeminiService {
     
     // MARK: - API Configuration
     
-    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     
     // MARK: - Default System Prompt
     
@@ -31,6 +31,7 @@ class GeminiService {
         case invalidResponse
         case apiError(String)
         case emptyResponse
+        case rateLimited
         
         var errorDescription: String? {
             switch self {
@@ -46,6 +47,8 @@ class GeminiService {
                 return "API error: \(message)"
             case .emptyResponse:
                 return "Empty response from Gemini API"
+            case .rateLimited:
+                return "Rate limited. Try again in a few seconds."
             }
         }
     }
@@ -164,9 +167,15 @@ class GeminiService {
             }
             
             if httpResponse.statusCode != 200 {
+                // Handle rate limiting specifically
+                if httpResponse.statusCode == 429 {
+                    print("[GeminiService] Rate limited (429)")
+                    throw GeminiError.rateLimited
+                }
+                
                 if let errorBody = String(data: data, encoding: .utf8) {
                     print("[GeminiService] API Error: \(errorBody)")
-                    throw GeminiError.apiError("Status \(httpResponse.statusCode): \(errorBody)")
+                    throw GeminiError.apiError("Status \(httpResponse.statusCode)")
                 }
                 throw GeminiError.apiError("Status code: \(httpResponse.statusCode)")
             }
