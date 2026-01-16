@@ -22,11 +22,13 @@ class GeminiService {
     
     // MARK: - Default System Prompt
     
+    // MARK: - Default System Prompt
+    
     static let defaultSystemPrompt = """
     Rewrite the following text to be clearer and better structured.
     Fix all typos and transcription issues based best judgement. Fix grammatical errors if any.  
     Do not add new information or change the message Preserve the original meaning, flow and order of information, and intent completely.
-    Keep the same tone, detail and formality level. Just output 1 final re-written text and nothing else.
+    Keep the same tone, detail and formality level. Just output 1 final re-written text and nothing else, don't output multiple items.
     """
     
     // MARK: - Errors
@@ -100,8 +102,8 @@ class GeminiService {
         let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
         
         guard status == errSecSuccess,
-              let data = dataTypeRef as? Data,
-              let key = String(data: data, encoding: .utf8) else {
+            let data = dataTypeRef as? Data,
+            let key = String(data: data, encoding: .utf8) else {
             return nil
         }
         
@@ -137,14 +139,14 @@ class GeminiService {
             throw GeminiError.noAPIKey
         }
         
-        let prompt = systemPrompt ?? GeminiService.defaultSystemPrompt
-        let fullPrompt = "\(prompt)\n\nText to rewrite:\n\(text)"
+        let sysPrompt = systemPrompt ?? GeminiService.defaultSystemPrompt
         
         // Try each model in the chain
         for (index, model) in modelChain.enumerated() {
             do {
                 print("[GeminiService] Trying model: \(model)")
-                let result = try await callModel(model: model, apiKey: apiKey, prompt: fullPrompt)
+                // Pass system prompt separately
+                let result = try await callModel(model: model, apiKey: apiKey, prompt: text, systemPrompt: sysPrompt)
                 return result
             } catch GeminiError.apiError(let message) where message.contains("429") {
                 print("[GeminiService] Rate limited on \(model), trying next...")
@@ -159,15 +161,16 @@ class GeminiService {
     }
     
     /// Call a specific model
-    private func callModel(model: String, apiKey: String, prompt: String) async throws -> String {
+    private func callModel(model: String, apiKey: String, prompt: String, systemPrompt: String) async throws -> String {
         guard let url = URL(string: "\(baseURL)/\(model):generateContent?key=\(apiKey)") else {
             throw GeminiError.invalidURL
         }
         
-        // Build request body
-        let requestBody: [String: Any] = [
+        // Build request body with system instruction
+        var requestBody: [String: Any] = [
             "contents": [
                 [
+                    "role": "user",
                     "parts": [
                         ["text": prompt]
                     ]
@@ -178,6 +181,16 @@ class GeminiService {
                 "maxOutputTokens": 2048
             ]
         ]
+        
+        // Add system instruction if supported by the model (Flash 1.5+ supports it)
+        if !systemPrompt.isEmpty {
+            requestBody["systemInstruction"] = [
+                "parts": [
+                    ["text": systemPrompt]
+                ]
+            ]
+        }
+
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
