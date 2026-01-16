@@ -34,10 +34,10 @@ class FloatingPanel: NSPanel {
         containerView.layer?.backgroundColor = .clear
         containerView.addSubview(hosting)
         
-        // Pin hosting view to container - bottom aligned
+        // Pin hosting view to container
         NSLayoutConstraint.activate([
             hosting.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            hosting.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            hosting.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
         ])
         
         self.contentView = containerView
@@ -82,7 +82,7 @@ class FloatingPanel: NSPanel {
         let windowWidth: CGFloat = 300
         
         let x = screenFrame.midX - (windowWidth / 2)
-        let y = screenFrame.minY + 2 // 2px from bottom (was 5)
+        let y = screenFrame.minY + 5 // 5px from bottom
         
         self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 30), display: true)
     }
