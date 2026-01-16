@@ -1,5 +1,6 @@
 import AppKit
 import Carbon.HIToolbox
+import Cocoa
 
 /// Injects text at the current cursor position using clipboard + simulated Cmd+V paste
 class TextInjector {
@@ -7,6 +8,9 @@ class TextInjector {
     /// Stored clipboard content to restore after paste
     private var savedPasteboardChangeCount: Int = 0
     private var savedPasteboardData: [(NSPasteboard.PasteboardType, Data)] = []
+    
+    /// Last detected target application (for external access if needed)
+    private(set) var lastTargetApp: NSRunningApplication?
     
     /// Inject text at the current cursor position
     /// Works by temporarily placing text on clipboard, simulating Cmd+V, then restoring clipboard
@@ -16,7 +20,20 @@ class TextInjector {
             return
         }
         
-        print("[TextInjector] Injecting text: \(text.prefix(50))...")
+        // Detect active application before injection
+        let targetApp = detectActiveApplication()
+        lastTargetApp = targetApp
+        
+        if let app = targetApp {
+            print("[TextInjector] Target App: \(app.localizedName ?? "Unknown") (\(app.bundleIdentifier ?? "unknown.bundle"))")
+        } else {
+            print("[TextInjector] Target App: Unknown")
+        }
+        
+        // Format text for specific apps (placeholder for future feature)
+        let formattedText = formatText(text, for: targetApp)
+        
+        print("[TextInjector] Injecting text: \(formattedText.prefix(50))...")
         
         // 1. Save current clipboard content
         saveClipboard()
@@ -24,7 +41,7 @@ class TextInjector {
         // 2. Put our text on clipboard
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        pasteboard.setString(formattedText, forType: .string)
         
         // 3. Small delay to ensure clipboard is updated
         usleep(50000) // 50ms
@@ -35,6 +52,43 @@ class TextInjector {
         // 5. Restore original clipboard after paste completes
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             self?.restoreClipboard()
+        }
+    }
+    
+    // MARK: - Active App Detection
+    
+    /// Detect the frontmost (active) application
+    private func detectActiveApplication() -> NSRunningApplication? {
+        return NSWorkspace.shared.frontmostApplication
+    }
+    
+    /// Format text for specific applications (placeholder for future feature)
+    /// - Parameters:
+    ///   - text: Original transcribed text
+    ///   - app: Target application (optional)
+    /// - Returns: Formatted text (currently returns original)
+    private func formatText(_ text: String, for app: NSRunningApplication?) -> String {
+        // Future: Add app-specific formatting here
+        // Example bundle IDs:
+        // - com.apple.Notes
+        // - com.microsoft.VSCode
+        // - com.tinyspeck.slackmacgap (Slack)
+        // - com.google.Chrome
+        
+        guard let bundleId = app?.bundleIdentifier else {
+            return text
+        }
+        
+        // Placeholder switch for future formatting rules
+        switch bundleId {
+        case "com.microsoft.VSCode", "com.apple.dt.Xcode":
+            // Future: Could apply code formatting
+            return text
+        case "com.tinyspeck.slackmacgap":
+            // Future: Could format for Slack markdown
+            return text
+        default:
+            return text
         }
     }
     
