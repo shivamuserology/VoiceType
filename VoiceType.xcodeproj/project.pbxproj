@@ -17,6 +17,7 @@
 		SVC003 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC006 /* AudioRecorder.swift */; };
 		SVC004 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC007 /* SpeechRecognizer.swift */; };
 		SVC005 /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC008 /* TextInjector.swift */; };
+		SVC006 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016 /* GeminiService.swift */; };
 		UTL001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* Constants.swift */; };
 		UTL002 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* Extensions.swift */; };
 		VW001 /* FloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC009 /* FloatingPanel.swift */; };
@@ -46,6 +47,7 @@
 		SRC015 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		SUP001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		SUP002 /* VoiceType.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceType.entitlements; sourceTree = "<group>"; };
+		SRC016 /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +118,7 @@
 				SRC006 /* AudioRecorder.swift */,
 				SRC007 /* SpeechRecognizer.swift */,
 				SRC008 /* TextInjector.swift */,
+				SRC016 /* GeminiService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -232,6 +235,7 @@
 				SVC003 /* AudioRecorder.swift in Sources */,
 				SVC004 /* SpeechRecognizer.swift in Sources */,
 				SVC005 /* TextInjector.swift in Sources */,
+				SVC006 /* GeminiService.swift in Sources */,
 				VW001 /* FloatingPanel.swift in Sources */,
 				VW002 /* FloatingWidgetView.swift in Sources */,
 				VW003 /* MenuBarController.swift in Sources */,
