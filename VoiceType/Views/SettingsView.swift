@@ -19,13 +19,19 @@ struct SettingsView: View {
                 }
                 .tag(1)
             
+            AIRewriteSettingsView()
+                .tabItem {
+                    Label("AI Rewrite", systemImage: "wand.and.stars")
+                }
+                .tag(2)
+            
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
-                .tag(2)
+                .tag(3)
         }
-        .frame(width: 500, height: 350)
+        .frame(width: 520, height: 420)
     }
 }
 
@@ -142,6 +148,112 @@ struct TranscriptionSettingsView: View {
         }
         .formStyle(.grouped)
         .padding()
+    }
+}
+
+// MARK: - AI Rewrite Settings
+
+struct AIRewriteSettingsView: View {
+    @AppStorage("aiRewriteEnabled") private var aiRewriteEnabled = true
+    @AppStorage("aiRewritePrompt") private var customPrompt = ""
+    @State private var apiKeyInput: String = ""
+    @State private var hasAPIKey: Bool = false
+    @State private var showAPIKey: Bool = false
+    
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Enable AI Rewrite (wand button)", isOn: $aiRewriteEnabled)
+                
+                Text("When enabled, the wand button appears during recording to paste and rewrite your transcription with AI.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } header: {
+                Text("Feature")
+            }
+            
+            Section {
+                HStack {
+                    if showAPIKey {
+                        TextField("Gemini API Key", text: $apiKeyInput)
+                            .textFieldStyle(.roundedBorder)
+                    } else {
+                        SecureField("Gemini API Key", text: $apiKeyInput)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    
+                    Button(action: { showAPIKey.toggle() }) {
+                        Image(systemName: showAPIKey ? "eye.slash" : "eye")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Button("Save") {
+                        if GeminiService.saveAPIKey(apiKeyInput) {
+                            hasAPIKey = true
+                        }
+                    }
+                    .disabled(apiKeyInput.isEmpty)
+                }
+                
+                HStack {
+                    Text("Status:")
+                    if hasAPIKey {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("API Key Saved")
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        Text("No API Key")
+                            .foregroundColor(.orange)
+                    }
+                }
+                
+                Text("Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } header: {
+                Text("Gemini API Key")
+            }
+            
+            Section {
+                TextEditor(text: $customPrompt)
+                    .font(.system(size: 12, design: .monospaced))
+                    .frame(height: 100)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                    )
+                
+                if customPrompt.isEmpty {
+                    Text("Using default prompt. Add a custom prompt to override.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Button("Reset to Default") {
+                    customPrompt = ""
+                }
+                .disabled(customPrompt.isEmpty)
+            } header: {
+                Text("Custom System Prompt")
+            } footer: {
+                Text("Default: Rewrite text to be clearer and better structured while preserving meaning and tone.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+        .onAppear {
+            hasAPIKey = GeminiService.hasAPIKey()
+            if hasAPIKey {
+                // Show masked placeholder if key exists
+                apiKeyInput = "••••••••••••••••"
+            }
+        }
     }
 }
 

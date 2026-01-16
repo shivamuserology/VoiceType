@@ -6,6 +6,7 @@ enum RecordingState: Equatable {
     case idle
     case recording
     case transcribing
+    case rewriting
     case error(String)
     
     static func == (lhs: RecordingState, rhs: RecordingState) -> Bool {
@@ -13,6 +14,7 @@ enum RecordingState: Equatable {
         case (.idle, .idle): return true
         case (.recording, .recording): return true
         case (.transcribing, .transcribing): return true
+        case (.rewriting, .rewriting): return true
         case (.error(let a), .error(let b)): return a == b
         default: return false
         }
@@ -38,6 +40,12 @@ class AppState: ObservableObject {
     let audioRecorder = AudioRecorder()
     let speechRecognizer = SpeechRecognizer()
     let textInjector = TextInjector()
+    let geminiService = GeminiService()
+    
+    // MARK: - Rewrite State
+    
+    private var rewriteTask: Task<Void, Never>?
+    private var originalTranscription: String?
     
     // MARK: - Private
     
@@ -180,6 +188,34 @@ class AppState: ObservableObject {
         print("[AppState] Recording cancelled")
     }
     
+    /// Stop recording and begin transcription with AI rewrite
+    func stopRecordingWithRewrite() {
+        guard recordingState == .recording else { return }
+        
+        guard let url = audioRecorder.stopRecording() else {
+            print("[AppState] No recording URL")
+            recordingState = .idle
+            return
+        }
+        
+        print("[AppState] Recording stopped, starting transcription with rewrite...")
+        recordingState = .transcribing
+        
+        rewriteTask = Task {
+            await transcribeRewriteAndInject(audioURL: url)
+        }
+    }
+    
+    /// Cancel rewriting (keeps raw transcription)
+    func cancelRewriting() {
+        guard recordingState == .rewriting else { return }
+        
+        rewriteTask?.cancel()
+        rewriteTask = nil
+        recordingState = .idle
+        print("[AppState] Rewriting cancelled, keeping raw transcription")
+    }
+    
     /// Dismiss error state
     func dismissError() {
         if case .error = recordingState {
@@ -212,6 +248,69 @@ class AppState: ObservableObject {
         
         // Clean up temp file
         try? FileManager.default.removeItem(at: audioURL)
+    }
+    
+    /// Transcribe, paste raw text, then rewrite with Gemini and replace
+    private func transcribeRewriteAndInject(audioURL: URL) async {
+        do {
+            // Step 1: Transcribe
+            let rawText = try await speechRecognizer.transcribe(audioURL: audioURL)
+            
+            guard !Task.isCancelled else { return }
+            
+            // Store original transcription
+            originalTranscription = rawText
+            lastTranscription = rawText
+            
+            // Step 2: Paste raw transcription immediately
+            textInjector.injectText(rawText)
+            print("[AppState] Raw transcription injected: \(rawText.prefix(50))...")
+            
+            // Step 3: Switch to rewriting state
+            recordingState = .rewriting
+            
+            guard !Task.isCancelled else {
+                recordingState = .idle
+                return
+            }
+            
+            // Step 4: Get custom prompt from settings
+            let customPrompt = UserDefaults.standard.string(forKey: "aiRewritePrompt")
+            
+            // Step 5: Call Gemini to rewrite
+            let rewrittenText = try await geminiService.rewriteText(rawText, systemPrompt: customPrompt)
+            
+            guard !Task.isCancelled else {
+                recordingState = .idle
+                return
+            }
+            
+            // Step 6: Select all and replace with rewritten text
+            textInjector.selectAllAndReplace(with: rewrittenText)
+            
+            lastTranscription = rewrittenText
+            recordingState = .idle
+            
+            print("[AppState] Rewrite complete and injected: \(rewrittenText.prefix(50))...")
+            
+        } catch is CancellationError {
+            print("[AppState] Rewrite was cancelled")
+            recordingState = .idle
+        } catch {
+            print("[AppState] Rewrite failed: \(error)")
+            // Keep raw transcription, show error briefly
+            recordingState = .error("Rewrite failed: \(error.localizedDescription)")
+            // Auto-dismiss error after 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                if case .error = self?.recordingState {
+                    self?.recordingState = .idle
+                }
+            }
+        }
+        
+        // Clean up temp file
+        try? FileManager.default.removeItem(at: audioURL)
+        rewriteTask = nil
     }
     
     // MARK: - Clipboard

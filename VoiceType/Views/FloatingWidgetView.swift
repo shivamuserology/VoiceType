@@ -14,11 +14,15 @@ struct FloatingWidgetView: View {
                 RecordingPillView(
                     audioLevel: appState.audioLevel,
                     onCancel: appState.cancelRecording,
-                    onStop: appState.stopRecording
+                    onStop: appState.stopRecording,
+                    onStopWithRewrite: appState.stopRecordingWithRewrite
                 )
                 
             case .transcribing:
                 TranscribingPillView()
+                
+            case .rewriting:
+                RewritingPillView(onCancel: appState.cancelRewriting)
                 
             case .error(let message):
                 ErrorPillView(message: message, onDismiss: appState.dismissError)
@@ -79,6 +83,7 @@ struct RecordingPillView: View {
     let audioLevel: Float
     let onCancel: () -> Void
     let onStop: () -> Void
+    let onStopWithRewrite: () -> Void
     
     var body: some View {
         HStack(spacing: 10) {
@@ -102,7 +107,7 @@ struct RecordingPillView: View {
             }
             .frame(width: 36, height: 18)
             
-            // Stop/Finish button
+            // Stop/Finish button (paste transcription only)
             Button(action: onStop) {
                 ZStack {
                     Circle()
@@ -112,6 +117,26 @@ struct RecordingPillView: View {
                     RoundedRectangle(cornerRadius: 1.5)
                         .fill(Color.white)
                         .frame(width: 7, height: 7)
+                }
+            }
+            .buttonStyle(.plain)
+            
+            // AI Rewrite button (wand icon - paste + rewrite)
+            Button(action: onStopWithRewrite) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.purple, .pink],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 17, height: 17)
+                    
+                    Image(systemName: "wand.and.stars")
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundColor(.white)
                 }
             }
             .buttonStyle(.plain)
@@ -183,6 +208,84 @@ struct TranscribingPillView: View {
     }
 }
 
+// MARK: - Rewriting State (AI)
+
+struct RewritingPillView: View {
+    let onCancel: () -> Void
+    @State private var animating = false
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            // Cancel button
+            Button(action: onCancel) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 7, weight: .bold))
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .buttonStyle(.plain)
+            .frame(width: 14, height: 14)
+            .background(Circle().fill(Color.white.opacity(0.15)))
+            
+            // Wand icon with shimmer
+            Image(systemName: "wand.and.stars")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.purple, .pink],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            
+            Text("Rewriting")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.white)
+            
+            // Animated dots
+            HStack(spacing: 2) {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.purple, .pink],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 3, height: 3)
+                        .opacity(animating ? 1 : 0.3)
+                        .animation(
+                            Animation.easeInOut(duration: 0.5)
+                                .repeatForever(autoreverses: true)
+                                .delay(Double(index) * 0.15),
+                            value: animating
+                        )
+                }
+            }
+        }
+        .frame(height: 22)
+        .padding(.horizontal, 10)
+        .background(
+            Capsule()
+                .fill(Color.black.opacity(0.9))
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [.purple.opacity(0.4), .pink.opacity(0.4)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .onAppear {
+            animating = true
+        }
+    }
+}
+
 // MARK: - Error State
 
 struct ErrorPillView: View {
@@ -229,6 +332,5 @@ struct ErrorPillView: View {
         TranscribingPillView()
         ErrorPillView(message: "Microphone access denied", onDismiss: {})
     }
-    .padding(50)
     .background(Color.gray.opacity(0.3))
 }
