@@ -41,6 +41,7 @@ class AppState: ObservableObject {
     let speechRecognizer = SpeechRecognizer()
     let textInjector = TextInjector()
     let geminiService = GeminiService()
+    let transcriptionHistory = TranscriptionHistory()
     
     // MARK: - Rewrite State
     
@@ -236,6 +237,9 @@ class AppState: ObservableObject {
             // Inject text at cursor
             textInjector.injectText(text)
             
+            // Save to history
+            transcriptionHistory.addTranscription(text)
+            
             // Return to idle
             recordingState = .idle
             
@@ -287,6 +291,9 @@ class AppState: ObservableObject {
             
             // Step 6: Select all and replace with rewritten text
             textInjector.selectAllAndReplace(with: rewrittenText)
+            
+            // Save to history with both raw and rewritten
+            transcriptionHistory.addTranscriptionWithRewrite(raw: rawText, rewritten: rewrittenText)
             
             lastTranscription = rewrittenText
             recordingState = .idle

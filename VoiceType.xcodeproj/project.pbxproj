@@ -25,6 +25,8 @@
 		VW003 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC011 /* MenuBarController.swift */; };
 		VW004 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC012 /* OnboardingView.swift */; };
 		VW005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC013 /* SettingsView.swift */; };
+		VW006 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC017 /* HistoryView.swift */; };
+		MOD001 /* TranscriptionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC018 /* TranscriptionHistory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,8 @@
 		SUP001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		SUP002 /* VoiceType.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceType.entitlements; sourceTree = "<group>"; };
 		SRC016 /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiService.swift; sourceTree = "<group>"; };
+		SRC017 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		SRC018 /* TranscriptionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionHistory.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				GRP_APP /* App */,
+				GRP_MOD /* Models */,
 				GRP_SVC /* Services */,
 				GRP_VW /* Views */,
 				GRP_UTL /* Utilities */,
@@ -123,6 +128,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		GRP_MOD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				SRC018 /* TranscriptionHistory.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		GRP_UTL /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -140,6 +153,7 @@
 				SRC011 /* MenuBarController.swift */,
 				SRC012 /* OnboardingView.swift */,
 				SRC013 /* SettingsView.swift */,
+				SRC017 /* HistoryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -241,6 +255,8 @@
 				VW003 /* MenuBarController.swift in Sources */,
 				VW004 /* OnboardingView.swift in Sources */,
 				VW005 /* SettingsView.swift in Sources */,
+				VW006 /* HistoryView.swift in Sources */,
+				MOD001 /* TranscriptionHistory.swift in Sources */,
 				UTL001 /* Constants.swift in Sources */,
 				UTL002 /* Extensions.swift in Sources */,
 			);

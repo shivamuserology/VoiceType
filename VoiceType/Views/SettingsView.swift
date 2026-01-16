@@ -32,13 +32,19 @@ struct SettingsView: View {
                 }
                 .tag(2)
             
+            HistoryView(history: appState.transcriptionHistory)
+                .tabItem {
+                    Label("History", systemImage: "clock.arrow.circlepath")
+                }
+                .tag(3)
+            
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
-                .tag(3)
+                .tag(4)
         }
-        .frame(width: 520, height: 450)
+        .frame(width: 560, height: 480)
     }
 }
 
