@@ -97,15 +97,15 @@ struct RecordingPillView: View {
             .frame(width: 17, height: 17)
             .background(Circle().fill(Color.white.opacity(0.2)))
             
-            // Audio waveform visualization
+            // Audio waveform visualization - wider with more bars
             HStack(spacing: 3) {
-                ForEach(0..<8, id: \.self) { index in
+                ForEach(0..<10, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 1)
                         .fill(Color.white.opacity(0.9))
-                        .frame(width: 1.5, height: waveHeight(for: index))
+                        .frame(width: 2, height: waveHeight(for: index))
                 }
             }
-            .frame(width: 36, height: 18)
+            .frame(width: 50, height: 18)
             
             // Stop/Finish button (paste transcription only)
             Button(action: onStop) {
@@ -121,28 +121,22 @@ struct RecordingPillView: View {
             }
             .buttonStyle(.plain)
             
-            // AI Rewrite button (wand icon - paste + rewrite)
+            // AI Rewrite button (sparkles icon - Gemini style)
             Button(action: onStopWithRewrite) {
                 ZStack {
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.purple, .pink],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Color.blue)
                         .frame(width: 17, height: 17)
                     
-                    Image(systemName: "wand.and.stars")
-                        .font(.system(size: 8, weight: .medium))
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 9, weight: .medium))
                         .foregroundColor(.white)
                 }
             }
             .buttonStyle(.plain)
         }
         .frame(height: 28)
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 12)
         .background(
             Capsule()
                 .fill(Color.black.opacity(0.9))
@@ -226,16 +220,10 @@ struct RewritingPillView: View {
             .frame(width: 14, height: 14)
             .background(Circle().fill(Color.white.opacity(0.15)))
             
-            // Wand icon with shimmer
-            Image(systemName: "wand.and.stars")
+            // Sparkles icon (Gemini style)
+            Image(systemName: "sparkles")
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.purple, .pink],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .foregroundColor(.blue)
             
             Text("Rewriting")
                 .font(.system(size: 10, weight: .medium))
@@ -245,13 +233,7 @@ struct RewritingPillView: View {
             HStack(spacing: 2) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.purple, .pink],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(Color.blue)
                         .frame(width: 3, height: 3)
                         .opacity(animating ? 1 : 0.3)
                         .animation(
@@ -271,14 +253,7 @@ struct RewritingPillView: View {
         )
         .overlay(
             Capsule()
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [.purple.opacity(0.4), .pink.opacity(0.4)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    lineWidth: 1
-                )
+                .strokeBorder(Color.blue.opacity(0.3), lineWidth: 1)
         )
         .onAppear {
             animating = true
