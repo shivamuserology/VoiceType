@@ -14,7 +14,10 @@ class TextInjector {
     
     /// Inject text at the current cursor position
     /// Works by temporarily placing text on clipboard, simulating Cmd+V, then restoring clipboard
-    func injectText(_ text: String) {
+    /// - Parameters:
+    ///   - text: The text to inject
+    ///   - selectAfter: If true, selects the injected text immediately after pasting (Shift+LeftArrow)
+    func injectText(_ text: String, selectAfter: Bool = false) {
         guard !text.isEmpty else {
             print("[TextInjector] Empty text, skipping injection")
             return
@@ -49,7 +52,13 @@ class TextInjector {
         // 4. Simulate Cmd+V paste
         simulatePaste()
         
-        // 5. Restore original clipboard after paste completes
+        // 5. Select the text if requested
+        if selectAfter {
+            usleep(20000) // 20ms wait for paste to finish (heuristic)
+            simulateSelectionBackwards(count: formattedText.count)
+        }
+        
+        // 6. Restore original clipboard after paste completes
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
             self?.restoreClipboard()
         }
@@ -100,67 +109,27 @@ class TextInjector {
         print("[TextInjector] Copied to clipboard: \(text.prefix(50))...")
     }
     
-    /// Select all text in the current field and replace with new text
-    /// Used for AI rewrite: replaces the raw transcription with rewritten version
-    func selectAllAndReplace(with text: String) {
-        guard !text.isEmpty else {
-            print("[TextInjector] Empty text, skipping replacement")
-            return
+    /// Simulate pressing Shift + Left Arrow multiple times to select text backwards
+    private func simulateSelectionBackwards(count: Int) {
+        guard let source = CGEventSource(stateID: .hidSystemState) else { return }
+        let leftArrowCode = CGKeyCode(kVK_LeftArrow)
+        
+        print("[TextInjector] Selecting backwards \(count) chars...")
+        
+        for _ in 0..<count {
+            if let keyDown = CGEvent(keyboardEventSource: source, virtualKey: leftArrowCode, keyDown: true) {
+                keyDown.flags = .maskShift
+                keyDown.post(tap: .cghidEventTap)
+            }
+            // Very short delay to prevent event coalescing issues
+             usleep(500) // 0.5ms
+             
+            if let keyUp = CGEvent(keyboardEventSource: source, virtualKey: leftArrowCode, keyDown: false) {
+                keyUp.flags = .maskShift
+                keyUp.post(tap: .cghidEventTap)
+            }
         }
-        
-        print("[TextInjector] Selecting all and replacing with: \(text.prefix(50))...")
-        
-        // 1. Save current clipboard content
-        saveClipboard()
-        
-        // 2. Put our replacement text on clipboard
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
-        
-        // 3. Small delay to ensure clipboard is updated
-        usleep(50000) // 50ms
-        
-        // 4. Simulate Cmd+A to select all
-        simulateSelectAll()
-        
-        // 5. Small delay between select and paste
-        usleep(100000) // 100ms
-        
-        // 6. Simulate Cmd+V paste (replaces selection)
-        simulatePaste()
-        
-        // 7. Restore original clipboard after paste completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
-            self?.restoreClipboard()
-        }
-    }
-    
-    /// Simulate Cmd+A (Select All)
-    private func simulateSelectAll() {
-        guard let source = CGEventSource(stateID: .hidSystemState) else {
-            print("[TextInjector] Failed to create event source for select all")
-            return
-        }
-        
-        // Virtual key code for 'A'
-        let aKeyCode = CGKeyCode(kVK_ANSI_A)
-        
-        // Key down with Command modifier
-        if let keyDown = CGEvent(keyboardEventSource: source, virtualKey: aKeyCode, keyDown: true) {
-            keyDown.flags = .maskCommand
-            keyDown.post(tap: .cghidEventTap)
-        }
-        
-        usleep(10000) // 10ms
-        
-        // Key up
-        if let keyUp = CGEvent(keyboardEventSource: source, virtualKey: aKeyCode, keyDown: false) {
-            keyUp.flags = .maskCommand
-            keyUp.post(tap: .cghidEventTap)
-        }
-        
-        print("[TextInjector] Simulated Cmd+A select all")
+        print("[TextInjector] Selection complete")
     }
     
     // MARK: - Private Methods

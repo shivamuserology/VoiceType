@@ -272,9 +272,9 @@ class AppState: ObservableObject {
             originalTranscription = rawText
             lastTranscription = rawText
             
-            // Step 2: Paste raw transcription immediately
-            textInjector.injectText(rawText)
-            print("[AppState] Raw transcription injected: \(rawText.prefix(50))...")
+            // Step 2: Paste raw transcription and select it
+            textInjector.injectText(rawText, selectAfter: true)
+            print("[AppState] Raw transcription injected and selected: \(rawText.prefix(50))...")
             
             // Step 3: Switch to rewriting state
             recordingState = .rewriting
@@ -295,8 +295,8 @@ class AppState: ObservableObject {
                 return
             }
             
-            // Step 6: Select all and replace with rewritten text
-            textInjector.selectAllAndReplace(with: rewrittenText)
+            // Step 6: Replace the selected text with rewritten text
+            textInjector.injectText(rewrittenText)
             
             // Save to history with both raw and rewritten
             transcriptionHistory.addTranscriptionWithRewrite(raw: rawText, rewritten: rewrittenText)
