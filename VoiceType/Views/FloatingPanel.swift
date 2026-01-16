@@ -21,7 +21,7 @@ class FloatingPanel: NSPanel {
         // Wrap content in AnyView and create hosting view
         let wrappedContent = AnyView(
             content
-                .frame(minWidth: 80, maxWidth: 400, minHeight: 12, maxHeight: 30)
+                .frame(minWidth: 80, maxWidth: 400, minHeight: 10, maxHeight: 30)
                 .fixedSize()
         )
         
@@ -34,10 +34,10 @@ class FloatingPanel: NSPanel {
         containerView.layer?.backgroundColor = .clear
         containerView.addSubview(hosting)
         
-        // Pin hosting view to container - bottom aligned
+        // Pin hosting view to container
         NSLayoutConstraint.activate([
             hosting.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            hosting.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            hosting.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
         ])
         
         self.contentView = containerView
@@ -82,7 +82,7 @@ class FloatingPanel: NSPanel {
         let windowWidth: CGFloat = 300
         
         let x = screenFrame.midX - (windowWidth / 2)
-        let y = screenFrame.minY + 2 // 2px from bottom (was 5)
+        let y = screenFrame.minY + 20 // 20px from bottom (was 50)
         
         self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 30), display: true)
     }

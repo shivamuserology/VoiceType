@@ -47,23 +47,17 @@ struct IdlePillView: View {
                         Text("to dictate")
                             .foregroundColor(.white.opacity(0.8))
                     }
-                    .font(.system(size: 10, weight: .medium)) // Scale down from 12
-                } else {
-                    Image(systemName: "waveform")
-                        .font(.system(size: 8)) // Scale down for 12pt height
-                        .foregroundColor(.white.opacity(0.7))
+                    .font(.system(size: 10, weight: .medium))
                 }
             }
-            // Fixed height to prevent jumping, use scaleEffect for collapsed appearance
-            .frame(width: isHovered ? 150 : 45, height: 22)
-            .scaleEffect(isHovered ? 1.0 : 0.55, anchor: .bottom)
+            .frame(width: isHovered ? 130 : 45, height: isHovered ? 22 : 10)
             .background(
                 Capsule()
                     .fill(Color.black.opacity(0.85))
             )
             .overlay(
                 Capsule()
-                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                    .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -92,7 +86,7 @@ struct RecordingPillView: View {
             }
             .buttonStyle(.plain)
             .frame(width: 16, height: 16) // Scale down 28->16
-            .background(Circle().fill(Color.white.opacity(0.4)))
+            .background(Circle().fill(Color.white.opacity(0.2)))
             
             // Audio waveform visualization
             HStack(spacing: 2) { // Spacing 3->2
@@ -108,7 +102,7 @@ struct RecordingPillView: View {
             Button(action: onStop) {
                 ZStack {
                     Circle()
-                        .fill(Color.red)
+                        .fill(Color.white.opacity(0.2))
                         .frame(width: 16, height: 16) // Scale 28->16
                     
                     RoundedRectangle(cornerRadius: 2)
@@ -126,7 +120,7 @@ struct RecordingPillView: View {
         )
         .overlay(
             Capsule()
-                                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
         )
     }
     
@@ -177,7 +171,7 @@ struct TranscribingPillView: View {
         )
         .overlay(
             Capsule()
-                                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
         )
         .onAppear {
             animating = true
@@ -217,7 +211,7 @@ struct ErrorPillView: View {
         )
         .overlay(
             Capsule()
-                                    .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
         )
     }
 }
