@@ -268,32 +268,36 @@ struct ErrorPillView: View {
     let onDismiss: () -> Void
     
     var body: some View {
-        HStack(spacing: 6) { // Spacing 10->6
+        HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 10)) // Scale defaults->10
-                .foregroundColor(.white.opacity(0.7))
+                .font(.system(size: 11))
+                .foregroundColor(.orange)
             
             Text(message)
-                .font(.system(size: 10, weight: .medium)) // Scale 12->10
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white)
-                .lineLimit(1)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
             
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 8, weight: .bold)) // Scale 10->8
+                    .font(.system(size: 9, weight: .bold))
                     .foregroundColor(.white.opacity(0.7))
             }
             .buttonStyle(.plain)
+            .frame(width: 16, height: 16)
+            .background(Circle().fill(Color.white.opacity(0.15)))
         }
-        .frame(height: 22) // Scale 44->22
-        .padding(.horizontal, 8) // Padding 14->8
+        .frame(minWidth: 150, maxWidth: 350)
+        .frame(height: 28)
+        .padding(.horizontal, 12)
         .background(
             Capsule()
                 .fill(Color.black.opacity(0.9))
         )
         .overlay(
             Capsule()
-                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+                .strokeBorder(Color.orange.opacity(0.3), lineWidth: 1)
         )
     }
 }

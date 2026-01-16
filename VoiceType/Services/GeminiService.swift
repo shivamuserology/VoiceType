@@ -11,7 +11,14 @@ class GeminiService {
     
     // MARK: - API Configuration
     
-    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
+    
+    /// Models to try in order (fallback chain for rate limiting)
+    private let modelChain = [
+        "gemini-2.0-flash",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-flash"
+    ]
     
     // MARK: - Default System Prompt
     
@@ -31,24 +38,24 @@ class GeminiService {
         case invalidResponse
         case apiError(String)
         case emptyResponse
-        case rateLimited
+        case allModelsRateLimited
         
         var errorDescription: String? {
             switch self {
             case .noAPIKey:
-                return "Gemini API key not configured. Please add it in Settings."
+                return "Gemini API key not configured"
             case .invalidURL:
                 return "Invalid API URL"
             case .networkError(let error):
                 return "Network error: \(error.localizedDescription)"
             case .invalidResponse:
-                return "Invalid response from Gemini API"
+                return "Invalid response from API"
             case .apiError(let message):
-                return "API error: \(message)"
+                return message
             case .emptyResponse:
-                return "Empty response from Gemini API"
-            case .rateLimited:
-                return "Rate limited. Try again in a few seconds."
+                return "Empty response from API"
+            case .allModelsRateLimited:
+                return "Rate limited - try again later"
             }
         }
     }
@@ -120,7 +127,7 @@ class GeminiService {
     
     // MARK: - Rewrite Text
     
-    /// Rewrite text using Gemini Flash
+    /// Rewrite text using Gemini Flash with automatic fallback
     /// - Parameters:
     ///   - text: The text to rewrite
     ///   - systemPrompt: Custom system instruction (uses default if nil)
@@ -130,19 +137,39 @@ class GeminiService {
             throw GeminiError.noAPIKey
         }
         
-        guard let url = URL(string: "\(baseURL)?key=\(apiKey)") else {
-            throw GeminiError.invalidURL
-        }
-        
         let prompt = systemPrompt ?? GeminiService.defaultSystemPrompt
         let fullPrompt = "\(prompt)\n\nText to rewrite:\n\(text)"
+        
+        // Try each model in the chain
+        for (index, model) in modelChain.enumerated() {
+            do {
+                print("[GeminiService] Trying model: \(model)")
+                let result = try await callModel(model: model, apiKey: apiKey, prompt: fullPrompt)
+                return result
+            } catch GeminiError.apiError(let message) where message.contains("429") {
+                print("[GeminiService] Rate limited on \(model), trying next...")
+                if index == modelChain.count - 1 {
+                    throw GeminiError.allModelsRateLimited
+                }
+                continue
+            }
+        }
+        
+        throw GeminiError.allModelsRateLimited
+    }
+    
+    /// Call a specific model
+    private func callModel(model: String, apiKey: String, prompt: String) async throws -> String {
+        guard let url = URL(string: "\(baseURL)/\(model):generateContent?key=\(apiKey)") else {
+            throw GeminiError.invalidURL
+        }
         
         // Build request body
         let requestBody: [String: Any] = [
             "contents": [
                 [
                     "parts": [
-                        ["text": fullPrompt]
+                        ["text": prompt]
                     ]
                 ]
             ],
@@ -157,53 +184,41 @@ class GeminiService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
-        print("[GeminiService] Sending rewrite request...")
+        let (data, response) = try await URLSession.shared.data(for: request)
         
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw GeminiError.invalidResponse
-            }
-            
-            if httpResponse.statusCode != 200 {
-                // Handle rate limiting specifically
-                if httpResponse.statusCode == 429 {
-                    print("[GeminiService] Rate limited (429)")
-                    throw GeminiError.rateLimited
-                }
-                
-                if let errorBody = String(data: data, encoding: .utf8) {
-                    print("[GeminiService] API Error: \(errorBody)")
-                    throw GeminiError.apiError("Status \(httpResponse.statusCode)")
-                }
-                throw GeminiError.apiError("Status code: \(httpResponse.statusCode)")
-            }
-            
-            // Parse response
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let candidates = json["candidates"] as? [[String: Any]],
-                  let firstCandidate = candidates.first,
-                  let content = firstCandidate["content"] as? [String: Any],
-                  let parts = content["parts"] as? [[String: Any]],
-                  let firstPart = parts.first,
-                  let rewrittenText = firstPart["text"] as? String else {
-                throw GeminiError.invalidResponse
-            }
-            
-            let trimmedText = rewrittenText.trimmingCharacters(in: .whitespacesAndNewlines)
-            
-            guard !trimmedText.isEmpty else {
-                throw GeminiError.emptyResponse
-            }
-            
-            print("[GeminiService] Rewrite complete: \(trimmedText.prefix(50))...")
-            return trimmedText
-            
-        } catch let error as GeminiError {
-            throw error
-        } catch {
-            throw GeminiError.networkError(error)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw GeminiError.invalidResponse
         }
+        
+        if httpResponse.statusCode == 429 {
+            throw GeminiError.apiError("429 Rate Limited")
+        }
+        
+        if httpResponse.statusCode != 200 {
+            if let errorBody = String(data: data, encoding: .utf8) {
+                print("[GeminiService] API Error: \(errorBody)")
+            }
+            throw GeminiError.apiError("Status \(httpResponse.statusCode)")
+        }
+        
+        // Parse response
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let candidates = json["candidates"] as? [[String: Any]],
+              let firstCandidate = candidates.first,
+              let content = firstCandidate["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let firstPart = parts.first,
+              let rewrittenText = firstPart["text"] as? String else {
+            throw GeminiError.invalidResponse
+        }
+        
+        let trimmedText = rewrittenText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedText.isEmpty else {
+            throw GeminiError.emptyResponse
+        }
+        
+        print("[GeminiService] Rewrite complete with \(model): \(trimmedText.prefix(50))...")
+        return trimmedText
     }
 }
