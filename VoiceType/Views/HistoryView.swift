@@ -135,92 +135,130 @@ struct HistoryEntryRow: View {
     @State private var isHovered = false
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Type indicator icon
-            VStack {
-                ZStack {
-                    Circle()
-                        .fill(entry.wasRewritten ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15))
-                        .frame(width: 32, height: 32)
-                    
-                    Image(systemName: entry.wasRewritten ? "sparkles" : "waveform")
-                        .font(.system(size: 14))
-                        .foregroundColor(entry.wasRewritten ? .blue : .secondary)
+        VStack(spacing: 0) {
+            // Header: Timestamp & Badge
+            HStack(spacing: 8) {
+                if entry.wasRewritten {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 10))
+                        .foregroundColor(.blue)
+                    Text("AI Rewrite")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.blue)
+                } else {
+                    Image(systemName: "waveform")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text("Transcription")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+                
+                Text("•")
+                    .foregroundColor(.secondary.opacity(0.5))
+                
+                Text(formatDate(entry.timestamp))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                // Actions (visible on hover)
+                if isHovered || isCopied {
+                    HStack(spacing: 12) {
+                        Button(action: onCopy) {
+                            if isCopied {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.green)
+                            } else {
+                                Image(systemName: "doc.on.doc")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .help("Copy to clipboard")
+                        
+                        Button(action: onDelete) {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red.opacity(0.8))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .transition(.opacity)
                 }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
             
             // Content
-            VStack(alignment: .leading, spacing: 4) {
-                // Timestamp and type badge
-                HStack(spacing: 6) {
-                    Text(formatDate(entry.timestamp))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    if entry.wasRewritten {
-                        Text("AI Rewritten")
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.blue)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(4)
+            if entry.wasRewritten {
+                // Two-column layout
+                HStack(alignment: .top, spacing: 0) {
+                    // Original (Left)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("ORIGINAL")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.secondary.opacity(0.7))
+                        Text(entry.rawText)
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
                     
-                    Spacer()
+                    // Divider
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.1))
+                        .frame(width: 1)
+                        .padding(.bottom, 12)
+                    
+                    // Rewritten (Right)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("REWRITTEN")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.blue.opacity(0.8))
+                        Text(entry.rewrittenText ?? "")
+                            .font(.system(size: 13))
+                            .foregroundColor(.primary)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
                 }
-                
-                // Main text
-                Text(entry.displayText)
+            } else {
+                // Single column layout
+                Text(entry.rawText)
                     .font(.system(size: 13))
                     .foregroundColor(.primary)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
-                
-                // Show original if rewritten
-                if entry.wasRewritten && entry.rawText != entry.rewrittenText {
-                    HStack(spacing: 4) {
-                        Text("Original:")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                        Text(entry.rawText)
-                            .font(.caption2)
-                            .foregroundColor(.secondary.opacity(0.8))
-                            .lineLimit(1)
-                    }
-                    .padding(.top, 2)
-                }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                    .lineLimit(nil)
             }
-            
-            // Copy button
-            Button(action: onCopy) {
-                ZStack {
-                    if isCopied {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 18))
-                            .foregroundColor(.green)
-                    } else {
-                        Image(systemName: "doc.on.doc")
-                            .font(.system(size: 16))
-                            .foregroundColor(isHovered ? .primary : .secondary)
-                    }
-                }
-                .frame(width: 32, height: 32)
-            }
-            .buttonStyle(.plain)
-            .help(isCopied ? "Copied!" : "Copy to clipboard")
         }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
-        .background(isHovered ? Color(NSColor.controlBackgroundColor).opacity(0.5) : Color.clear)
+        .background(isHovered ? Color(NSColor.controlBackgroundColor) : Color(NSColor.windowBackgroundColor))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isHovered ? Color.primary.opacity(0.1) : Color.clear, lineWidth: 1)
+        )
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
         .onHover { hovering in
-            isHovered = hovering
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isHovered = hovering
+            }
         }
         .contextMenu {
             Button(action: onCopy) {
                 Label("Copy", systemImage: "doc.on.doc")
             }
-            
             if entry.wasRewritten {
                 Button(action: {
                     let pasteboard = NSPasteboard.general
@@ -230,9 +268,7 @@ struct HistoryEntryRow: View {
                     Label("Copy Original", systemImage: "doc.plaintext")
                 }
             }
-            
             Divider()
-            
             Button(role: .destructive, action: onDelete) {
                 Label("Delete", systemImage: "trash")
             }
@@ -249,9 +285,6 @@ struct HistoryEntryRow: View {
         } else if calendar.isDateInYesterday(date) {
             formatter.dateFormat = "h:mm a"
             return "Yesterday, \(formatter.string(from: date))"
-        } else if calendar.isDate(date, equalTo: Date(), toGranularity: .weekOfYear) {
-            formatter.dateFormat = "EEEE, h:mm a"
-            return formatter.string(from: date)
         } else {
             formatter.dateFormat = "MMM d, h:mm a"
             return formatter.string(from: date)
