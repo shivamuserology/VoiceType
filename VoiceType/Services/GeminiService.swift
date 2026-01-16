@@ -127,7 +127,7 @@ class GeminiService {
             topP: 0.95,
             topK: 40,
             maxOutputTokens: 2048,
-            responseMimeType: "text/plain"
+            responseMIMEType: "text/plain"
         )
         
         let model = GenerativeModel(
