@@ -10,7 +10,7 @@ class FloatingPanel: NSPanel {
     /// Initialize the floating panel with SwiftUI content
     init<Content: View>(content: Content) {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 24),
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 22),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -21,7 +21,7 @@ class FloatingPanel: NSPanel {
         // Wrap content in AnyView and create hosting view
         let wrappedContent = AnyView(
             content
-                .frame(minWidth: 80, maxWidth: 400, minHeight: 22, maxHeight: 30)
+                .frame(minWidth: 80, maxWidth: 400, minHeight: 12, maxHeight: 22)
                 .fixedSize()
         )
         
@@ -29,7 +29,7 @@ class FloatingPanel: NSPanel {
         hosting.translatesAutoresizingMaskIntoConstraints = false
         
         // Create a container view to avoid constraint issues
-        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+        let containerView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 22))
         containerView.wantsLayer = true
         containerView.layer?.backgroundColor = .clear
         containerView.addSubview(hosting)
@@ -82,9 +82,9 @@ class FloatingPanel: NSPanel {
         let windowWidth: CGFloat = 300
         
         let x = screenFrame.midX - (windowWidth / 2)
-        let y = screenFrame.minY + 12 // 12pt from absolute bottom
+        let y = screenFrame.minY + 6 // 6pt from absolute bottom
         
-        self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 24), display: true)
+        self.setFrame(NSRect(x: x, y: y, width: windowWidth, height: 22), display: true)
     }
     
     // MARK: - Prevent Focus Stealing
