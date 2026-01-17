@@ -1,12 +1,12 @@
-# VoiceType 1.1.1: Context & Control 🧠
+# VoiceType 1.1.1: Perfected by context aware AI ✨
 This update transforms VoiceType from a dictation tool into a context-aware writing assistant. It now "sees" where you are writing to give you perfectly tailored results.
 
 ## 🌟 What's New
 
-### 🧠 Smart Context Awareness
+### 🧠 Perfected by context aware AI
 VoiceType now understands your environment:
-*   **Window Context**: It detects the active window title and URL (e.g., "Slack: #engineering", "Xcode: GeminiService.swift") to adapt its tone and technical level.
-*   **Ghost Context**: It intelligently reads the text field name and description even if the text itself isn't selectable, preventing the "blind rewrite" problem.
+*   **App and Document context**: It automatically detects the active app, document title, and technical level (e.g., "Slack: #engineering", "Xcode: GeminiService.m") to adapt its tone instantly.
+*   **Smart Fallbacks**: It can even read context from text fields that normally block accessibility tools, ensuring a perfect rewrite every time.
 *   **Safe Placeholders**: Create your own custom prompts in Settings using placeholders like `{windowContext}`, `{platformName}`, and `{userProfession}`.
 
 ### ⌨️ Keyboard Power
