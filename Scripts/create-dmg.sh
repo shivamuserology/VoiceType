@@ -5,7 +5,7 @@
 
 set -e
 
-APP_PATH="/Users/shivamsethi/Documents/VoiceType.app"
+APP_PATH="/Users/shivamsethi/Documents/VoiceType_1.1.1.app"
 DMG_PATH="./VoiceType-1.1.1.dmg"
 VOLUME_NAME="VoiceType"
 VOLUME_ICON="./VoiceType/Resources/AppIcon.icns"

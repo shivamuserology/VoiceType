@@ -7,7 +7,11 @@ This update transforms VoiceType from a dictation tool into a context-aware writ
 VoiceType now understands your environment:
 *   **App and Document context**: It automatically detects the active app, document title, and technical level (e.g., "Slack: #engineering", "Xcode: GeminiService.m") to adapt its tone instantly.
 *   **Smart Fallbacks**: It can even read context from text fields that normally block accessibility tools, ensuring a perfect rewrite every time.
-*   **Safe Placeholders**: Create your own custom prompts in Settings using placeholders like `{windowContext}`, `{platformName}`, and `{userProfession}`.
+*   **Safe Placeholders**: Create your own custom prompts in Settings using placeholders like `{app_and_document_context}`, `{nearby_text_context}`, `{platformName}`, and `{userProfession}`.
+
+### 🎯 Refined Widget Experience
+*   **Helpful Tooltips**: Hover over the widget buttons during recording to see their actions: "Cancel", "End", or "End & Re-Write".
+*   Cleaner, more intuitive button labels throughout the app.
 
 ### ⌨️ Keyboard Power
 *   **Fn + Shift (Release)**: You can now trigger the **AI Rewrite** instantly from your keyboard.

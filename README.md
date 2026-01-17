@@ -1,16 +1,16 @@
 # VoiceType
 
-A native macOS dictation app with a floating widget, Fn key activation, and **Smart AI Rewrite** capabilities. Powered by on-device WhisperKit and Google Gemini.
+A native macOS dictation app with a floating widget, Fn key activation, and **context-aware AI Rewrite** capabilities. Perfected by on-device WhisperKit and Google Gemini.
 
 ![VoiceType Demo](docs/demo.gif)
 
 ## Features
 
 - 🎙️ **Voice-to-Text Anywhere** - Dictate in any app where you can type
-- ✨ **Smart AI Rewrite** - Instantly fix grammar, formatting, and clarity with a single click
-- ⌨️ **Fn Key Activation** - Press and hold Fn to start dictating
+- ✨ **Perfected by context aware AI** - Instantly fix grammar, formatting, and clarity with full app & document context
+- ⌨️ **Fn Key Activation** - Press and hold Fn to start dictating; add Shift to auto-rewrite
 - 🔒 **Privacy Focused** - Dictation is 100% on-device; Rewrite is opt-in via your own API Key
-- 💨 **Floating Widget** - Always visible, non-intrusive pill with fluid animations
+- 💨 **Floating Widget** - Always visible, non-intrusive pill with fluid animations and helpful tooltips
 - 📋 **Clipboard Integration** - Copy your last transcription from the menu bar
 
 ## Requirements
@@ -21,7 +21,7 @@ A native macOS dictation app with a floating widget, Fn key activation, and **Sm
 
 ## Installation
 
-1. Download **VoiceType-1.1.0.dmg** from the [Releases](https://github.com/shivam1610sethi/VoiceType/releases) page
+1. Download **VoiceType-1.1.1.dmg** from the [Releases](https://github.com/shivam1610sethi/VoiceType/releases) page
 2. Open the DMG and drag VoiceType to your Applications folder
 3. Launch VoiceType from Applications
 4. Grant permissions:
@@ -45,7 +45,8 @@ A native macOS dictation app with a floating widget, Fn key activation, and **Sm
 ### Hands-Free Mode
 1. Click the floating widget to start recording
 2. Speak your text
-3. Click **Stop** (Red) to paste raw, or **Rewrite** (Blue) to polish
+3. Click **End** (Red) to paste raw, or **End & Re-Write** (Blue) to polish
+4. Hover over buttons to see helpful tooltips!
 
 ## Building from Source
 
