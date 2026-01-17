@@ -51,6 +51,8 @@ class AppState: ObservableObject {
     // MARK: - Private
     
     private var recordingURL: URL?
+    private var recordingSourceApp: NSRunningApplication?
+    private var lastActiveHostApp: String = "Application"
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initialization
@@ -74,12 +76,28 @@ class AppState: ObservableObject {
             }
         }
         
-        hotkeyMonitor.onFnKeyUp = { [weak self] in
+        hotkeyMonitor.onFnKeyUp = { [weak self] isShiftPressed in
             Task { @MainActor in
                 // Only stop if we're actually recording (not if user just tapped Fn)
                 if self?.recordingState == .recording {
-                    self?.stopRecording()
+                    if isShiftPressed {
+                        print("[AppState] Fn key released with Shift - Triggering AI Rewrite")
+                        self?.stopRecordingWithRewrite()
+                    } else {
+                        self?.stopRecording()
+                    }
                 }
+            }
+        }
+        
+        // Track last active app (ignoring VoiceType) to provide context for AI Rewrites
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] notification in
+            guard let self = self else { return }
+            guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
+            
+            // If the activated app is NOT VoiceType, store it
+            if app.bundleIdentifier != Bundle.main.bundleIdentifier {
+                self.lastActiveHostApp = app.localizedName ?? "Application"
             }
         }
     }
@@ -154,7 +172,8 @@ class AppState: ObservableObject {
             do {
                 // Optimistically update UI to feel responsive
                 recordingState = .recording
-                print("[AppState] Starting recording engine (async)...")
+                recordingSourceApp = NSWorkspace.shared.frontmostApplication
+                print("[AppState] Starting recording engine (async). Source App: \(recordingSourceApp?.localizedName ?? "Unknown")")
                 
                 recordingURL = try await audioRecorder.startRecording()
                 print("[AppState] Recording engine started successfully")
@@ -234,6 +253,9 @@ class AppState: ObservableObject {
     
     private func transcribeAndInject(audioURL: URL) async {
         do {
+            // Step 0: Ensure correct target app (Smart Lock)
+            let _ = await enforceTargetAppWithContext()
+            
             // Transcribe
             let text = try await speechRecognizer.transcribe(audioURL: audioURL)
             
@@ -263,6 +285,9 @@ class AppState: ObservableObject {
     /// Transcribe, paste raw text, then rewrite with Gemini and replace
     private func transcribeRewriteAndInject(audioURL: URL) async {
         do {
+            // Step 0: Ensure correct target app (Smart Lock)
+            let (platformContext, windowContext, textContent) = await enforceTargetAppWithContext()
+            
             // Step 1: Transcribe
             let rawText = try await speechRecognizer.transcribe(audioURL: audioURL)
             
@@ -272,9 +297,9 @@ class AppState: ObservableObject {
             originalTranscription = rawText
             lastTranscription = rawText
             
-            // Step 2: Paste raw transcription and select it
-            textInjector.injectText(rawText, selectAfter: true)
-            print("[AppState] Raw transcription injected and selected: \(rawText.prefix(50))...")
+            // Step 2: Paste raw transcription (Do NOT select it, we will Undo it later)
+            textInjector.injectText(rawText, selectAfter: false)
+            print("[AppState] Raw transcription injected: \(rawText.prefix(50))...")
             
             // Step 3: Switch to rewriting state
             recordingState = .rewriting
@@ -287,15 +312,38 @@ class AppState: ObservableObject {
             // Step 4: Get custom prompt from settings
             let customPrompt = UserDefaults.standard.string(forKey: "aiRewritePrompt")
             
-            // Step 5: Call Gemini to rewrite
-            let rewrittenText = try await geminiService.rewriteText(rawText, systemPrompt: customPrompt)
+            // Step 5: Platform context is already determined by enforceTargetApp
+            
+            // Safeguard: If context matches the message, ignore the context to prevent "Ghost Read" bugs
+            var finalTextFieldValue = textContent
+            let normalizedContext = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
+            let normalizedRaw = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if !normalizedContext.isEmpty && normalizedContext == normalizedRaw {
+                print("[AppState] Warning: Context matches transcription exactly. Dropping context to avoid redundancy.")
+                finalTextFieldValue = ""
+            }
+            
+            // Step 6: Call Gemini to rewrite
+            let rewrittenText = try await geminiService.rewriteText(
+                rawText,
+                systemPrompt: customPrompt,
+                platformContext: platformContext,
+                windowContext: windowContext,
+                textFieldValue: finalTextFieldValue
+            )
             
             guard !Task.isCancelled else {
                 recordingState = .idle
                 return
             }
             
-            // Step 6: Replace the selected text with rewritten text
+            // Step 7: "Smart Replace" -> Undo the raw text paste (Cmd+Z), then Paste rewritten text
+            textInjector.undoLastAction()
+            
+            // Short delay to allow Undo to complete in slow apps like Google Docs
+            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            
             textInjector.injectText(rewrittenText)
             
             // Save to history with both raw and rewritten
@@ -343,6 +391,56 @@ class AppState: ObservableObject {
         // Clean up temp file
         try? FileManager.default.removeItem(at: audioURL)
         rewriteTask = nil
+    }
+    
+    // MARK: - Smart Target Locking
+    
+    /// Checks if we need to switch back to the source app (Target Lock)
+    /// Returns: (Platform Name, Window Context, Text Content)
+    private func enforceTargetAppWithContext() async -> (platform: String, windowContext: String, textContent: String) {
+        let currentApp = NSWorkspace.shared.frontmostApplication
+        let defaultName = "Application"
+        
+        // Helper to safely get app name
+        func getName(_ app: NSRunningApplication?) -> String {
+            return app?.localizedName ?? defaultName
+        }
+        
+        guard let sourceApp = recordingSourceApp, let current = currentApp else {
+            // Fallback: Just return current app name
+            return (getName(currentApp), "", "")
+        }
+        
+        // If we are still in the same app or source is dead, stick with current
+        if current.bundleIdentifier == sourceApp.bundleIdentifier || sourceApp.isTerminated {
+             let context = await MainActor.run { FocusManager.shared.getFocusedElementContext() }
+             return (getName(current), context.context, context.textContent)
+        }
+        
+        // Smart Lock Logic
+        let isEditable = await MainActor.run { FocusManager.shared.isCurrentFocusEditable() }
+        
+        if isEditable {
+            // User switched to a new editable field (e.g. Chrome) -> Use New App
+            print("[AppState] Smart Lock: User focused editable field in \(getName(current)). Updating target.")
+            let context = await MainActor.run { FocusManager.shared.getFocusedElementContext() }
+            return (getName(current), context.context, context.textContent)
+        } else {
+            // User is just viewing/referencing -> Switch back to Source App (e.g. Slack)
+            print("[AppState] Smart Lock: No editable focus in \(getName(current)). Switching back to \(getName(sourceApp)).")
+            
+            await MainActor.run {
+                 sourceApp.activate(options: .activateIgnoringOtherApps)
+            }
+            
+            // Wait for it to become active (simple delay)
+            // 200ms is usually sufficient for window switching
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            
+            // Capture context from Source App after switch
+            let context = await MainActor.run { FocusManager.shared.getFocusedElementContext() }
+            return (getName(sourceApp), context.context, context.textContent)
+        }
     }
     
     // MARK: - Clipboard

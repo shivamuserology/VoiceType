@@ -22,7 +22,6 @@
 		SVC006 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC016 /* GeminiService.swift */; };
 		UTL001 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC014 /* Constants.swift */; };
 		UTL002 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC015 /* Extensions.swift */; };
-		UTL003 /* FocusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC019 /* FocusManager.swift */; };
 		VW001 /* FloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC009 /* FloatingPanel.swift */; };
 		VW002 /* FloatingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC010 /* FloatingWidgetView.swift */; };
 		VW003 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = SRC011 /* MenuBarController.swift */; };
@@ -52,7 +51,6 @@
 		SRC016 /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiService.swift; sourceTree = "<group>"; };
 		SRC017 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		SRC018 /* TranscriptionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionHistory.swift; sourceTree = "<group>"; };
-		SRC019 /* FocusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusManager.swift; sourceTree = "<group>"; };
 		SUP001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		SUP002 /* VoiceType.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceType.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -145,7 +143,6 @@
 			children = (
 				SRC014 /* Constants.swift */,
 				SRC015 /* Extensions.swift */,
-				SRC019 /* FocusManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -266,7 +263,6 @@
 				MOD001 /* TranscriptionHistory.swift in Sources */,
 				UTL001 /* Constants.swift in Sources */,
 				UTL002 /* Extensions.swift in Sources */,
-				UTL003 /* FocusManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,7 +398,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = "VoiceType/Supporting Files/VoiceType.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -445,7 +441,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_ENTITLEMENTS = "VoiceType/Supporting Files/VoiceType.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;

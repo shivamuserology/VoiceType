@@ -75,6 +75,11 @@ struct OnboardingView: View {
             }
             .padding(.top, 32)
             .padding(.bottom, 24)
+            .overlay(alignment: .topTrailing) {
+                subtleStatusHeader
+                    .padding(.trailing, 24)
+                    .padding(.top, 24)
+            }
             
             // Content based on step
             if currentStep == .personalization {
@@ -188,12 +193,7 @@ struct OnboardingView: View {
                 }
                 .buttonStyle(.plain)
                 
-                Button(action: { currentStep = .permissions }) {
-                    Text("Skip")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
+
             }
             .padding(.horizontal, 32)
             .padding(.bottom, 28)
@@ -257,9 +257,6 @@ struct OnboardingView: View {
             
             // Bottom Area
             VStack(spacing: 16) {
-                // Model Installation Status
-                ModelStatusView(recognizer: speechRecognizer)
-                
                 // Bottom Buttons
                 VStack(spacing: 8) {
                     Button(action: onComplete) {
@@ -277,26 +274,81 @@ struct OnboardingView: View {
                         .padding(.vertical, 14)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(canContinue ? Color.black : Color.black.opacity(0.1))
+                                .fill(canContinue ? Color.black : Color.black.opacity(0.05))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(canContinue ? Color.clear : Color.primary.opacity(0.1), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
                     .disabled(!canContinue)
-                    
-                    if !canContinue {
-                        Button(action: onComplete) {
-                            Text("Skip for now")
-                                .font(.system(size: 11))
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
                 }
             }
             .padding(.horizontal, 32)
             .padding(.bottom, 24)
             .padding(.top, 8)
         }
+    }
+    
+    // MARK: - Subtle Status Header
+    
+    private var subtleStatusHeader: some View {
+        HStack(spacing: 12) {
+            // Permissions Status
+            HStack(spacing: 8) {
+                StatusIcon(
+                    systemName: "mic.fill",
+                    isGranted: permissionsManager.microphoneStatus == .granted
+                )
+                
+                StatusIcon(
+                    systemName: "accessibility.fill",
+                    isGranted: permissionsManager.accessibilityStatus == .granted
+                )
+            }
+            
+            // Model Loading Status
+            ZStack {
+                if speechRecognizer.isReady {
+                    Image(systemName: "cpu.fill")
+                        .font(.system(size: 10))
+                        .foregroundColor(.green)
+                } else {
+                    ProgressView()
+                        .scaleEffect(0.4)
+                        .frame(width: 12, height: 12)
+                }
+            }
+            .frame(width: 20, height: 20)
+            .background(
+                Circle()
+                    .fill(Color.primary.opacity(0.05))
+            )
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            Capsule()
+                .fill(Color(NSColor.windowBackgroundColor))
+                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        )
+        .overlay(
+            Capsule()
+                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+        )
+    }
+}
+
+struct StatusIcon: View {
+    let systemName: String
+    let isGranted: Bool
+    
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: 10))
+            .foregroundColor(isGranted ? .green : .secondary.opacity(0.4))
+            .frame(width: 14, height: 14)
     }
 }
 
@@ -357,80 +409,4 @@ struct CompactPermissionRow: View {
     }
 }
 
-// MARK: - Model Status View
 
-struct ModelStatusView: View {
-    @ObservedObject var recognizer: SpeechRecognizer
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            if recognizer.isReady {
-                // Completed State
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.green)
-                    Text("AI Model Ready (100%)")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.green)
-                }
-            } else if let error = recognizer.initializationError {
-                // Error State
-                VStack(spacing: 6) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.red)
-                        Text("Installation Failed")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.red)
-                    }
-                    
-                    Button(action: {
-                        Task {
-                            await recognizer.initialize()
-                        }
-                    }) {
-                        Text("Retry Installation")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(Color.black)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Text(error)
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                }
-            } else {
-                // Loading State
-                VStack(spacing: 6) {
-                    HStack {
-                        Text("Installing AI Model...")
-                            .font(.system(size: 11, weight: .medium))
-                        Spacer()
-                        ProgressView()
-                            .scaleEffect(0.5)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .primary))
-                    }
-                    
-                    ProgressView() // Indeterminate
-                        .progressViewStyle(LinearProgressViewStyle(tint: .primary))
-                        .opacity(0.5)
-                }
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.primary.opacity(0.05))
-        )
-    }
-}

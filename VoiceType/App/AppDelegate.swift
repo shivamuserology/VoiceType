@@ -210,7 +210,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 1000, height: 720),
-                styleMask: [.titled, .closable],
+                styleMask: [.titled, .closable, .resizable, .miniaturizable],
                 backing: .buffered,
                 defer: false
             )
@@ -218,6 +218,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.contentView = NSHostingView(rootView: view)
             window.center()
             window.isReleasedWhenClosed = false
+            window.collectionBehavior = [.fullScreenPrimary]
             
             settingsWindow = window
         }

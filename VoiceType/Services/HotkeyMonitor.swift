@@ -12,8 +12,8 @@ class HotkeyMonitor: ObservableObject {
     /// Callback when Fn key is pressed down
     var onFnKeyDown: (() -> Void)?
     
-    /// Callback when Fn key is released
-    var onFnKeyUp: (() -> Void)?
+    /// Callback when Fn key is released (Bool indicates if Shift was also pressed)
+    var onFnKeyUp: ((Bool) -> Void)?
     
     /// Start monitoring for global Fn key events
     /// Requires Accessibility permission to work system-wide
@@ -63,9 +63,11 @@ class HotkeyMonitor: ObservableObject {
             }
         } else if !fnPressed && isFnKeyPressed {
             // Fn key just released
+            let shiftPressed = event.modifierFlags.contains(.shift)
+            
             DispatchQueue.main.async { [weak self] in
                 self?.isFnKeyPressed = false
-                self?.onFnKeyUp?()
+                self?.onFnKeyUp?(shiftPressed)
             }
         }
     }

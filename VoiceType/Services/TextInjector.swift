@@ -187,8 +187,9 @@ class TextInjector {
             keyDown.post(tap: .cghidEventTap)
         }
         
-        // Small delay between key down and up
-        usleep(10000) // 10ms
+        // Delay between key down and up. 
+        // Increased to 50ms for web apps like Google Docs/Slack
+        usleep(50000) 
         
         // Key up
         if let keyUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false) {
@@ -197,5 +198,30 @@ class TextInjector {
         }
         
         print("[TextInjector] Simulated Cmd+V paste")
+    }
+    
+    /// Simulate Cmd+Z to undo the last action
+    func undoLastAction() {
+        guard let source = CGEventSource(stateID: .hidSystemState) else { return }
+        
+        // Virtual key code for 'Z'
+        let zKeyCode = CGKeyCode(kVK_ANSI_Z)
+        
+        // Key down with Command modifier
+        if let keyDown = CGEvent(keyboardEventSource: source, virtualKey: zKeyCode, keyDown: true) {
+            keyDown.flags = .maskCommand
+            keyDown.post(tap: .cghidEventTap)
+        }
+        
+        // Delay standard for undo
+        usleep(50000)
+        
+        // Key up
+        if let keyUp = CGEvent(keyboardEventSource: source, virtualKey: zKeyCode, keyDown: false) {
+            keyUp.flags = .maskCommand
+            keyUp.post(tap: .cghidEventTap)
+        }
+        
+        print("[TextInjector] Simulated Cmd+Z undo")
     }
 }

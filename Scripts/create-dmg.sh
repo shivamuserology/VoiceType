@@ -5,8 +5,8 @@
 
 set -e
 
-APP_PATH="./build/Build/Products/Release/VoiceType.app"
-DMG_PATH="./build/VoiceType-1.0.2.dmg"
+APP_PATH="/Users/shivamsethi/Documents/VoiceType.app"
+DMG_PATH="./VoiceType-1.1.1.dmg"
 VOLUME_NAME="VoiceType"
 VOLUME_ICON="./VoiceType/Resources/AppIcon.icns"
 
