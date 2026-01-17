@@ -109,6 +109,7 @@ struct RecordingPillView: View {
             .buttonStyle(.plain)
             .frame(width: 17, height: 17)
             .background(Circle().fill(Color.white.opacity(0.2)))
+            .help("Cancel")
             
             // Audio waveform visualization - wider with more bars
             HStack(spacing: 3) {
@@ -133,6 +134,7 @@ struct RecordingPillView: View {
                 }
             }
             .buttonStyle(.plain)
+            .help("End")
             
             // AI Rewrite button (sparkles icon - Gemini style)
             Button(action: onStopWithRewrite) {
@@ -147,6 +149,7 @@ struct RecordingPillView: View {
                 }
             }
             .buttonStyle(.plain)
+            .help("End & Re-Write")
         }
         .frame(height: 28)
         .padding(.horizontal, 12)
