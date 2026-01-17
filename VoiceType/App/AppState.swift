@@ -286,7 +286,7 @@ class AppState: ObservableObject {
     private func transcribeRewriteAndInject(audioURL: URL) async {
         do {
             // Step 0: Ensure correct target app (Smart Lock)
-            let (platformContext, windowContext, textContent) = await enforceTargetAppWithContext()
+            let (platformContext, appAndDocumentContext, nearbyTextContent) = await enforceTargetAppWithContext()
             
             // Step 1: Transcribe
             let rawText = try await speechRecognizer.transcribe(audioURL: audioURL)
@@ -315,13 +315,13 @@ class AppState: ObservableObject {
             // Step 5: Platform context is already determined by enforceTargetApp
             
             // Safeguard: If context matches the message, ignore the context to prevent "Ghost Read" bugs
-            var finalTextFieldValue = textContent
-            let normalizedContext = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
+            var finalNearbyText = nearbyTextContent
+            let normalizedContext = nearbyTextContent.trimmingCharacters(in: .whitespacesAndNewlines)
             let normalizedRaw = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
             
             if !normalizedContext.isEmpty && normalizedContext == normalizedRaw {
                 print("[AppState] Warning: Context matches transcription exactly. Dropping context to avoid redundancy.")
-                finalTextFieldValue = ""
+                finalNearbyText = ""
             }
             
             // Step 6: Call Gemini to rewrite
@@ -329,8 +329,8 @@ class AppState: ObservableObject {
                 rawText,
                 systemPrompt: customPrompt,
                 platformContext: platformContext,
-                windowContext: windowContext,
-                textFieldValue: finalTextFieldValue
+                appAndDocumentContext: appAndDocumentContext,
+                nearbyTextContext: finalNearbyText
             )
             
             guard !Task.isCancelled else {
@@ -397,7 +397,7 @@ class AppState: ObservableObject {
     
     /// Checks if we need to switch back to the source app (Target Lock)
     /// Returns: (Platform Name, Window Context, Text Content)
-    private func enforceTargetAppWithContext() async -> (platform: String, windowContext: String, textContent: String) {
+    private func enforceTargetAppWithContext() async -> (platform: String, appAndDocumentContext: String, nearbyTextContent: String) {
         let currentApp = NSWorkspace.shared.frontmostApplication
         let defaultName = "Application"
         
@@ -414,7 +414,7 @@ class AppState: ObservableObject {
         // If we are still in the same app or source is dead, stick with current
         if current.bundleIdentifier == sourceApp.bundleIdentifier || sourceApp.isTerminated {
              let context = await MainActor.run { FocusManager.shared.getFocusedElementContext() }
-             return (getName(current), context.context, context.textContent)
+             return (getName(current), context.appAndDocumentContext, context.nearbyTextContent)
         }
         
         // Smart Lock Logic
@@ -424,7 +424,7 @@ class AppState: ObservableObject {
             // User switched to a new editable field (e.g. Chrome) -> Use New App
             print("[AppState] Smart Lock: User focused editable field in \(getName(current)). Updating target.")
             let context = await MainActor.run { FocusManager.shared.getFocusedElementContext() }
-            return (getName(current), context.context, context.textContent)
+            return (getName(current), context.appAndDocumentContext, context.nearbyTextContent)
         } else {
             // User is just viewing/referencing -> Switch back to Source App (e.g. Slack)
             print("[AppState] Smart Lock: No editable focus in \(getName(current)). Switching back to \(getName(sourceApp)).")
@@ -439,7 +439,7 @@ class AppState: ObservableObject {
             
             // Capture context from Source App after switch
             let context = await MainActor.run { FocusManager.shared.getFocusedElementContext() }
-            return (getName(sourceApp), context.context, context.textContent)
+            return (getName(sourceApp), context.appAndDocumentContext, context.nearbyTextContent)
         }
     }
     

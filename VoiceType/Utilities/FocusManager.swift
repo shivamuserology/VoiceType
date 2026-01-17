@@ -35,7 +35,7 @@ class FocusManager {
     
     /// Get detailed context about the current focus
     /// - Returns: Tuple of (WindowContext, TextFieldValue)
-    func getFocusedElementContext() -> (context: String, textContent: String) {
+    func getFocusedElementContext() -> (appAndDocumentContext: String, nearbyTextContent: String) {
         // 1. Get frontmost app
         guard let frontApp = NSWorkspace.shared.frontmostApplication else { return ("Unknown", "") }
         

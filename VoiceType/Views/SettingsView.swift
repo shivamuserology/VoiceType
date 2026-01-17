@@ -530,7 +530,7 @@ struct AIRewriteSettingsView: View {
                     }
                 }
                 
-                Text("Variables: {userProfession}, {platformName}, {windowContext}, {textFieldValue}")
+                Text("Variables: {userProfession}, {platformName}, {app_and_document_context}, {nearby_text_context}")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.leading, 4)
