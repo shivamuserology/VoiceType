@@ -366,6 +366,127 @@
                 margin-top: 24px;
             }
         }
+
+        /* Mobile-specific fixes */
+        @media (max-width: 600px) {
+            nav {
+                padding: 0 16px;
+                height: 60px;
+            }
+
+            .nav-right {
+                gap: 8px;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .btn-download {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            header.hero {
+                padding: 80px 16px 40px;
+                min-height: auto;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+                line-height: 1.15;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+                padding: 0 8px;
+            }
+
+            .badge-container {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                padding: 0 8px;
+            }
+
+            .stat-badge {
+                font-size: 0.75rem !important;
+                padding: 6px 12px !important;
+            }
+
+            .marquee {
+                padding: 20px 0;
+            }
+
+            .marquee-item {
+                font-size: 0.9rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .ai-section,
+            .comparison-section {
+                padding: 40px 16px;
+            }
+
+            .feature-card {
+                padding: 24px;
+            }
+
+            footer {
+                padding: 40px 16px;
+            }
+        }
+
+        /* Non-Mac Device Banner */
+        .mac-only-banner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-cream);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mac-only-banner.show {
+            display: flex;
+        }
+
+        .mac-only-banner .mac-icon {
+            font-size: 4rem;
+            margin-bottom: 24px;
+        }
+
+        .mac-only-banner h2 {
+            font-family: 'EB Garamond', serif;
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .mac-only-banner p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 400px;
+            margin-bottom: 24px;
+        }
+
+        .mac-only-banner .github-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .mac-only-banner .github-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -520,7 +641,26 @@
         <p style="margin-top: 24px; color: rgba(0,0,0,0.3); font-size: 0.8rem;">© 2026 VoiceType. Crafted with care.</p>
     </footer>
 
+    <!-- Non-Mac Device Banner -->
+    <div class="mac-only-banner" id="macOnlyBanner">
+        <span class="mac-icon">🍎</span>
+        <h2>Built for Mac</h2>
+        <p>VoiceType is a native macOS application designed exclusively for Apple Silicon Macs.</p>
+        <p style="margin-bottom: 32px;">Visit this page on your Mac to download, or explore the source code:</p>
+        <a href="https://github.com/shivamuserology/VoiceType" class="github-link" target="_blank">View on GitHub →</a>
+    </div>
+
     <script>
+        // Device Detection - Show banner on non-Mac devices
+        (function () {
+            const isMac = /Mac|Macintosh/i.test(navigator.userAgent) && !/iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (!isMac) {
+                document.getElementById('macOnlyBanner').classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        })();
+
         // Scroll Animation Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
