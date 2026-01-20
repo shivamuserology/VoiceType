@@ -338,12 +338,27 @@ class AppState: ObservableObject {
                 return
             }
             
-            // Step 7: "Smart Replace" -> Undo the raw text paste (Cmd+Z), then Paste rewritten text
+            // Step 7: Proper Undo-Replace Strategy
+            // 1. Undo the initial raw paste from Step 2
+            // 2. Paste raw text WITH selection (for undo stack)
+            // 3. Paste rewritten text (replaces selection)
+            // Result: Cmd+Z -> raw text, Cmd+Z again -> original
+            
+            // First, undo the raw paste from Step 2
             textInjector.undoLastAction()
+            try? await Task.sleep(nanoseconds: 50_000_000) // 50ms for undo to complete
             
-            // Short delay to allow Undo to complete in slow apps like Google Docs
-            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            // Now paste raw text with selection enabled
+            textInjector.injectText(rawText, selectAfter: true)
             
+            // Dynamic delay: Selection takes ~1.5ms per character (0.5ms delay + overhead)
+            // Add 200ms buffer for safety
+            let selectionDelayMs = max(200, (rawText.count * 2) + 200)
+            let selectionDelayNs = UInt64(selectionDelayMs) * 1_000_000
+            print("[AppState] Waiting \(selectionDelayMs)ms for selection of \(rawText.count) chars...")
+            try? await Task.sleep(nanoseconds: selectionDelayNs)
+            
+            // Finally, paste rewritten text (replaces the selected raw text)
             textInjector.injectText(rewrittenText)
             
             // Save to history with both raw and rewritten

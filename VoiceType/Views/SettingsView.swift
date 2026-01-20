@@ -530,7 +530,7 @@ struct AIRewriteSettingsView: View {
                     }
                 }
                 
-                Text("Variables: {userProfession}, {platformName}, {app_and_document_context}, {nearby_text_context}")
+                Text("Context is now passed in the user message automatically. Edit the system prompt above to change AI behavior.")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.leading, 4)

@@ -55,7 +55,7 @@ class TextInjector {
         // 5. Select the text if requested
         if selectAfter {
             usleep(20000) // 20ms wait for paste to finish (heuristic)
-            simulateSelectionBackwards(count: formattedText.count)
+            selectBackwards(count: formattedText.count)
         }
         
         // 6. Restore original clipboard after paste completes
@@ -109,8 +109,9 @@ class TextInjector {
         print("[TextInjector] Copied to clipboard: \(text.prefix(50))...")
     }
     
-    /// Simulate pressing Shift + Left Arrow multiple times to select text backwards
-    private func simulateSelectionBackwards(count: Int) {
+    /// Select text backwards by simulating Shift + Left Arrow multiple times
+    /// Used for Select-Replace strategy to preserve undo stack
+    func selectBackwards(count: Int) {
         guard let source = CGEventSource(stateID: .hidSystemState) else { return }
         let leftArrowCode = CGKeyCode(kVK_LeftArrow)
         

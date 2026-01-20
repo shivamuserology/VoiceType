@@ -5,3 +5,6 @@ build/
 DerivedData/
 .build/
 .swiftpm/
+
+# Local Netlify folder
+.netlify

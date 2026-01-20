@@ -21,7 +21,7 @@ A native macOS dictation app with a floating widget, Fn key activation, and **co
 
 ## Installation
 
-1. Download **VoiceType-1.1.1.dmg** from the [Releases](https://github.com/shivam1610sethi/VoiceType/releases) page
+1. Download **VoiceType-1.1.1.dmg** from the [Releases](https://github.com/shivamuserology/VoiceType/releases) page
 2. Open the DMG and drag VoiceType to your Applications folder
 3. Launch VoiceType from Applications
 4. Grant permissions:
@@ -58,7 +58,7 @@ A native macOS dictation app with a floating widget, Fn key activation, and **co
 
 ```bash
 # Clone the repository
-git clone https://github.com/shivam1610sethi/VoiceType.git
+git clone https://github.com/shivamuserology/VoiceType.git
 cd VoiceType
 
 # Open in Xcode
